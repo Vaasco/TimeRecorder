@@ -1,7 +1,10 @@
 import isel.leic.UsbPort
 import isel.leic.utils.Time
 
+
 fun main(args: Array<String>) {
-    UsbPort.`in`()
-    println(KBD.waitKey(10000))
+    repeat(100) { i ->
+        UsbPort.out(i)
+        Time.sleep(1000)
+    }
 }

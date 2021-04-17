@@ -1,11 +1,15 @@
-import isel.leic.UsbPort
 import isel.leic.utils.Time.getTimeInMillis
 
 object KBD { // Ler teclas. Métodos retornam ‘0’..’9’,’#’,’*’ ou NONE.
-    const val NONE: Char = 0.toChar()
-    const val KEY_MASK = 0b00011110
-    const val D_VAL = 0b00000001
-    val array = charArrayOf('1','4','7','*','2','5','8','0','3','6','9','#')
+
+    private const val NONE: Char = 0.toChar()
+    // Mask que representa os bits de Kcode no UsbPort
+    private const val KEY_MASK = 0b00011110
+    // Mask que representa a entrada do bit D_Val do bloco KeyDecode
+    private const val D_VAL = 0b00000001
+    // Array em que o índice representa o código da tecla de cada elemento
+    private val array = charArrayOf('1','4','7','*','2','5','8','0','3','6','9','#')
+
     // Retorna de imediato a tecla premida ou NONE se não há tecla premida.
     fun getKey(): Char {
         val value = HAL.readBits(KEY_MASK)
@@ -27,3 +31,4 @@ object KBD { // Ler teclas. Métodos retornam ‘0’..’9’,’#’,’*’ o
         return NONE
     }
 }
+
