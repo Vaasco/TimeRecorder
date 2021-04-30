@@ -3,8 +3,7 @@ import isel.leic.utils.Time
 
 
 fun main(args: Array<String>) {
-    repeat(100) { i ->
-        UsbPort.out(i)
-        Time.sleep(1000)
-    }
+    LCD.writeNibble(true, 0b1010)
+    Time.sleep(4000)
+    LCD.writeByte(true, 0b11001001)
 }

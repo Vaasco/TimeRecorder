@@ -4,9 +4,9 @@ object KBD { // Ler teclas. Métodos retornam ‘0’..’9’,’#’,’*’ o
 
     private const val NONE: Char = 0.toChar()
     // Mask que representa os bits de Kcode no UsbPort
-    private const val KEY_MASK = 0b00011110
+    private const val KEY_MASK = 0b00001111
     // Mask que representa a entrada do bit D_Val do bloco KeyDecode
-    private const val D_VAL = 0b00000001
+    private const val D_VAL = 0b00010000
     // Array em que o índice representa o código da tecla de cada elemento
     private val array = charArrayOf('1','4','7','*','2','5','8','0','3','6','9','#')
 
