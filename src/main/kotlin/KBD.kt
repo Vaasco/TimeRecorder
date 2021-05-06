@@ -22,13 +22,12 @@ object KBD { // Ler teclas. Métodos retornam ‘0’..’9’,’#’,’*’ o
     fun waitKey(timeout: Long): Char{
         val msBefore = getTimeInMillis()
         var currentTime = 0L
-        while(currentTime - msBefore < timeout){
-            val value = HAL.readBits(KEY_MASK)
-            val valid = HAL.isBit(D_VAL)
-            if(valid && value in array.indices) return array[value]
+        var key = NONE
+        while(currentTime - msBefore < timeout && key == NONE){
+            key = getKey()
             currentTime = getTimeInMillis()
         }
-        return NONE
+        return key
     }
 }
 

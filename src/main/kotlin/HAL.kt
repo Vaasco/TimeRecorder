@@ -6,7 +6,7 @@ object HAL { // Virtualiza o acesso ao sistema UsbPort
      * que vai guardando o valor representado
      * pelos bits da saída do UsbPort
      */
-    var outputBits = 0
+    private var outputBits = 0
 
 
     // Inicia a classe

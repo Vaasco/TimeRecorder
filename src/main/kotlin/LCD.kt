@@ -9,11 +9,8 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
     private const val LINES = 2
     private const val COLS = 16 // Dimensão do display.
 
-
-
-
     // Escreve um nibble de comando/dados no LCD
-    fun writeNibble(rs: Boolean, data: Int){
+    private fun writeNibble(rs: Boolean, data: Int){
         if (rs) HAL.setBits(RS_MASK) // Rs High
         else HAL.clearBits(RS_MASK) // Rs Low
         HAL.setBits(ENABLE_MASK) // Enable High
@@ -23,14 +20,14 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
     }
 
     // Escreve um byte de comando/dados no LCD
-    fun writeByte(rs: Boolean, data: Int){
+    private fun writeByte(rs: Boolean, data: Int){
         writeNibble(rs,data shr 4)
-        Time.sleep(2)
+        Time.sleep(1)
         writeNibble(rs, data)
     }
 
     // Escreve um comando no LCD
-    fun writeCMD(data: Int){
+    private fun writeCMD(data: Int){
         writeByte(false ,data)
     }
 
@@ -52,18 +49,19 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
         writeCMD(0x01)
         writeCMD(0x06)
         writeCMD(0x0F)
-
     }
 
     // Escreve um caráter na posição corrente.
     fun write(c: Char){
         if(cursorPos.second == 15 && cursorPos.first == 0) {
+            writeDATA(c.toInt())
             writeCMD(0xC0)
             cursorPos = Pair(1,0)
         }
-        writeDATA(c.toInt())
-        if(cursorPos.second < 15) cursorPos = Pair(cursorPos.first, cursorPos.second+1)
-        println(cursorPos)
+        else{
+            writeDATA(c.toInt())
+            if(cursorPos.second < 15) cursorPos = Pair(cursorPos.first, cursorPos.second+1)
+        }
     }
 
     // Escreve uma string na posição corrente.
@@ -73,19 +71,13 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
 
     // Envia comando para posicionar cursor (‘line’:0..LINES-1 , ‘column’:0..COLS-1)
     fun cursor(line: Int, column: Int){
-        if(column < cursorPos.second) {
-            repeat(cursorPos.second - column){writeCMD(0x10)}
-        }
-        else if(column > cursorPos.second) {
-            repeat(column - cursorPos.second) {writeCMD(0x14)}
-        }
-
+        val value = if(line == 1) column + 40 else column
+        writeCMD(0x80 + value)
     }
 
     // Envia comando para limpar o ecrã e posicionar o cursor em (0,0)
     fun clear(){
-        writeCMD(0b00000001)
-        cursor(0,0)
+        writeCMD(1)
     }
 }
 

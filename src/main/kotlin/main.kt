@@ -1,25 +1,19 @@
-import isel.leic.UsbPort
 import isel.leic.utils.Time
 
+fun setAck(){
+    HAL.setBits(128)
+    HAL.clearBits(128)
+}
 
-fun main(args: Array<String>) {
+fun writeKey():Char{
+    val key = KBD.waitKey(5000)
+    LCD.write(key)
+    return key
+}
+
+fun main(args: Array<String>){
+    HAL.init()
     LCD.init()
-    Time.sleep(1000)
-    LCD.write("FACILADADA123456")
-    Time.sleep(1000)
-    LCD.write("FACILADADA123456")
-    Time.sleep(1000)
-    LCD.write('A')
-    Time.sleep(1000)
-    LCD.write('F')
-    Time.sleep(1000)
-    LCD.write('A')
-    Time.sleep(1000)
-    LCD.write('c')
-    Time.sleep(1000)
-    LCD.write(" FACIL")
-    Time.sleep(4000)
-
-    /*Time.sleep(4000)
-    LCD.init(true, 0b11001001)*/
+    LCD.clear()
+    LCD.cursor(1, 10)
 }
