@@ -1,7 +1,7 @@
 
 object TUI {
     fun readInteger(visible:Boolean, lenght:Int, missing:Boolean):Int{
-        var code:String = ""
+        var code:String = ""//
         if (missing){
             repeat(lenght){
                 LCD.write('?')
