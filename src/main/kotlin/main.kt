@@ -14,6 +14,12 @@ fun writeKey():Char{
 fun main(args: Array<String>){
     HAL.init()
     LCD.init()
-    LCD.clear()
-    LCD.cursor(1, 10)
+    repeat(10){
+        setAck()
+    }
+    val code = TUI.readInteger(true, 4, true)
+    if (code == 1234){
+        LCD.clear()
+        LCD.write("Bem vindo.")
+    }
 }

@@ -16,7 +16,7 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
         HAL.setBits(ENABLE_MASK) // Enable High
         HAL.writeBits(DATA_MASK, data)
         HAL.clearBits(ENABLE_MASK) // Enable Low
-
+        
     }
 
     // Escreve um byte de comando/dados no LCD
@@ -29,6 +29,7 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
     // Escreve um comando no LCD
     private fun writeCMD(data: Int){
         writeByte(false ,data)
+        Time.sleep(10)
     }
 
     // Escreve um dado no LCD
@@ -38,17 +39,24 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
 
     // Envia a sequência de iniciação para comunicação a 4 bits.
     fun init(){
+        cursorPos = Pair(0, 0)
         Time.sleep(15)
         writeNibble(false,0b0011)
         Time.sleep(5)
         writeNibble( false,0b0011)
         writeNibble(false,0b0011)
         writeNibble(false,0b0010)
+        Time.sleep(20)
         writeCMD(0x28)
+        Time.sleep(20)
         writeCMD(0x08)
+        Time.sleep(20)
         writeCMD(0x01)
+        Time.sleep(20)
         writeCMD(0x06)
+        Time.sleep(20)
         writeCMD(0x0F)
+        Time.sleep(20)
     }
 
     // Escreve um caráter na posição corrente.
@@ -71,13 +79,20 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
 
     // Envia comando para posicionar cursor (‘line’:0..LINES-1 , ‘column’:0..COLS-1)
     fun cursor(line: Int, column: Int){
-        val value = if(line == 1) column + 40 else column
-        writeCMD(0x80 + value)
+        if(line == 1){
+            writeCMD(0xC0 + column)
+        }
+        else{
+            writeCMD(0x80 + column)
+        }
+        cursorPos = Pair(line, column)
     }
 
     // Envia comando para limpar o ecrã e posicionar o cursor em (0,0)
     fun clear(){
         writeCMD(1)
+        cursorPos = Pair(0, 0)
+        Time.sleep(10)
     }
 }
 
