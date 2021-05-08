@@ -1,11 +1,11 @@
-import isel.leic.UsbPort
 import isel.leic.utils.Time
 
 object LCD{ // Escreve no LCD usando a interface a 4 bits
-    private const val DATA_MASK = 0b00001111
-    private const val RS_MASK = 0b00010000
-    private const val ENABLE_MASK = 0b00100000
-    private var cursorPos = Pair(0,0)
+    private data class Pos(var line:Int, var column:Int)
+    private const val DATA_MASK = 0b00001111 // Posição do bit que representa Data À saída do UsbPort
+    private const val RS_MASK = 0b00010000 // Posição do bit que representa RS À saída do UsbPort
+    private const val ENABLE_MASK = 0b00100000 // Posição do bit que representa E À saída do UsbPort
+    private var cursorPos = Pos(0,0)
     private const val LINES = 2
     private const val COLS = 16 // Dimensão do display.
 
@@ -39,36 +39,30 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
 
     // Envia a sequência de iniciação para comunicação a 4 bits.
     fun init(){
-        cursorPos = Pair(0, 0)
+        cursorPos = Pos(0, 0)
         Time.sleep(15)
         writeNibble(false,0b0011)
         Time.sleep(5)
         writeNibble( false,0b0011)
         writeNibble(false,0b0011)
         writeNibble(false,0b0010)
-        Time.sleep(20)
         writeCMD(0x28)
-        Time.sleep(20)
         writeCMD(0x08)
-        Time.sleep(20)
         writeCMD(0x01)
-        Time.sleep(20)
         writeCMD(0x06)
-        Time.sleep(20)
         writeCMD(0x0F)
-        Time.sleep(20)
     }
 
     // Escreve um caráter na posição corrente.
     fun write(c: Char){
-        if(cursorPos.second == 15 && cursorPos.first == 0) {
+        if(cursorPos.column == COLS-1 && cursorPos.line == 0) {
             writeDATA(c.toInt())
             writeCMD(0xC0)
-            cursorPos = Pair(1,0)
+            cursorPos = Pos(cursorPos.line + 1,0)
         }
         else{
             writeDATA(c.toInt())
-            if(cursorPos.second < 15) cursorPos = Pair(cursorPos.first, cursorPos.second+1)
+            if(cursorPos.column < 15) cursorPos = Pos(cursorPos.line, cursorPos.column+1)
         }
     }
 
@@ -85,14 +79,13 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
         else{
             writeCMD(0x80 + column)
         }
-        cursorPos = Pair(line, column)
+        cursorPos = Pos(line, column)
     }
 
     // Envia comando para limpar o ecrã e posicionar o cursor em (0,0)
     fun clear(){
         writeCMD(1)
-        cursorPos = Pair(0, 0)
-        Time.sleep(10)
+        cursorPos = Pos(0, 0)
     }
 }
 

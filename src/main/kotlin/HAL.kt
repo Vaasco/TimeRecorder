@@ -20,7 +20,7 @@ object HAL { // Virtualiza o acesso ao sistema UsbPort
     // Retorna os valores dos bits representados por mask presentes no UsbPort
     fun readBits(mask: Int): Int {
         val a = UsbPort.`in`().inv().and(mask)
-        var idx: Int = 0
+        var idx = 0
         var nMask = mask
         for (i in 0..7) {
             if (nMask % 2 != 0) {
@@ -41,11 +41,13 @@ object HAL { // Virtualiza o acesso ao sistema UsbPort
         UsbPort.out(outputBits.inv())
     }
 
+
     // Coloca os bits representados por mask no valor lógico ‘1’
     fun setBits(mask: Int) {
        outputBits = outputBits.or(mask)
        UsbPort.out(outputBits.inv())
     }
+
 
     // Coloca os bits representados por mask no valor lógico ‘0’
     fun clearBits(mask: Int){
