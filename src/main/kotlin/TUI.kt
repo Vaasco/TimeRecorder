@@ -7,6 +7,7 @@ object TUI {
     enum class Align{Center, Left, Right}
     var date:String = "0-0-00"
     var time:String = "00:00"
+
     fun init(){
         writeDate()
         writeHour()
@@ -23,7 +24,7 @@ object TUI {
     private fun readInteger(visible:Boolean, lenght:Int):Int{
         var intString = ""
         val none = 0.toChar().toString()
-        intString += writeKey(visible, 60000)
+        intString += writeKey(visible, 30000)
         if (intString == none || intString == "*") return -2
         repeat(lenght-1){
             intString += writeKey(visible, 5000)
@@ -36,6 +37,7 @@ object TUI {
             -1
         }
     }
+
     fun readNumber(visible: Boolean, lenght: Int, missing: Boolean): Int {
         if (missing) {
             writeSentence("?".repeat(lenght), Align.Left, 0)
@@ -43,6 +45,7 @@ object TUI {
         }
         return readInteger(visible, lenght)
     }
+
     private fun writeDate(){
         val year = dateTime.year
         val month = dateTime.month.value
@@ -68,12 +71,11 @@ object TUI {
                 LCD.cursor(line, 16 - text.length)
                 LCD.write(text)
             }
-            Align.Center -> writeCenterAligned(text, line)
+            Align.Center -> {
+                LCD.cursor(line, (16 - text.length) / 2)
+                LCD.write(text)
+            }
         }
-    }
-
-    private fun writeCenterAligned(text: String, line: Int) {
-        TODO("Not yet implemented")
     }
 
 }

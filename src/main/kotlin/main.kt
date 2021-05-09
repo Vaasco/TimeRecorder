@@ -1,5 +1,6 @@
 import isel.leic.utils.Time
 
+
 fun setAck(){
     HAL.setBits(128)
     HAL.clearBits(128)
@@ -24,24 +25,23 @@ fun main(args: Array<String>){
     repeat(10){
         setAck()
     }
-    while (true){
-        val code = TUI.readNumber(false, 4, true)
-        if (code == -1){
-            LCD.clear()
-            TUI.writeSentence("PIN invalido", TUI.Align.Left, 0)
-            TUI.writeSentence("Tente novamente", TUI.Align.Left, 1)
-            Time.sleep(1500)
-            LCD.clear()
-        }
-        else if(code == -2) continue
-        else{
-            if (code == 1234){
-                LCD.clear()
-                TUI.writeSentence("Bem vindo.", TUI.Align.Left, 0)
-                Time.sleep(3000)
-                LCD.clear()
+    while(true){
+        TUI.writeSentence("UIN ", TUI.Align.Right, 0)
+        val UIN = TUI.readNumber(true, 3, true)
+        var user:Users.User = Users.User(0, 0, "", 0, "")
+        var count = 0
+        Users.listUsers.forEach {
+            println(it.UIN)
+            if(it.UIN == UIN){
+                user = it
+                count++
+                println("cheguei aqui")
             }
         }
+        if(count == 1){
+            LCD.clear()
+        }
+        LCD.clear()
         TUI.updateDateTime()
     }
 
