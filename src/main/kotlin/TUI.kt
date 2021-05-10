@@ -55,7 +55,7 @@ object TUI {
     }
 
     private fun writeHour(){
-        val hours = dateTime.hour
+        val hours = if(dateTime.hour >= 10 ) dateTime.hour.toString() else '0' + dateTime.hour.toString()
         val mins = if(dateTime.minute >= 10 ) dateTime.minute.toString() else '0' + dateTime.minute.toString()
         time = "$hours:$mins"
         writeSentence(time, Align.Right, 1)
