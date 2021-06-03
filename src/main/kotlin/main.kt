@@ -28,11 +28,12 @@ fun main(args: Array<String>){
     }
     while(true){
         TUI.writeSentence("UIN ", TUI.Align.Right, 0)
-        val UIN = TUI.readNumber(true, 3, true)
+        Time.sleep(1000)
+        val uin = 0 //TUI.readNumber(true, 3, false)
         var user:Users.User = Users.User(0, 0, "", 0, "")
         var count = 0
         Users.listUsers.forEach {
-            if(it.UIN == UIN){
+            if(it.UIN == uin){
                 user = it
                 count++
                 println("cheguei aqui")
@@ -42,7 +43,8 @@ fun main(args: Array<String>){
             LCD.clear()
             TUI.updateDateTime()
             TUI.writeSentence("PIN ", TUI.Align.Right, 0)
-            val pin = TUI.readNumber(true, 4, true)
+            Time.sleep(1000)
+            val pin = 1256 //TUI.readNumber(true, 4, true)
             if(pin == user.PIN){
                 LCD.clear()
                 TUI.writeSentence("Bem vindo", TUI.Align.Center, 0)
@@ -61,5 +63,4 @@ fun main(args: Array<String>){
         LCD.clear()
         TUI.updateDateTime()
     }
-
 }

@@ -13,10 +13,11 @@ object KBD { // Ler teclas. Métodos retornam ‘0’..’9’,’#’,’*’ o
     // Retorna de imediato a tecla premida ou NONE se não há tecla premida.
     fun getKey(): Char {
         val value = HAL.readBits(KEY_MASK)
-        return if (HAL.isBit(D_VAL) && value in array.indices)
-            array[value]
+        if (HAL.isBit(D_VAL) && value in array.indices){
+            return array[value]
+        }
         else
-            NONE
+            return NONE
     }
     // Retorna quando a tecla for premida ou NONE após decorrido ‘timeout’ milisegundos.
     fun waitKey(timeout: Long): Char{
@@ -27,6 +28,7 @@ object KBD { // Ler teclas. Métodos retornam ‘0’..’9’,’#’,’*’ o
             key = getKey()
             currentTime = getTimeInMillis()
         }
+        setAck()
         return key
     }
 }

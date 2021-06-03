@@ -2,12 +2,12 @@ import isel.leic.utils.Time
 
 object LCD{ // Escreve no LCD usando a interface a 4 bits
     private data class Pos(var line:Int, var column:Int)
-    private const val DATA_MASK = 0b00001111 // Posição do bit que representa Data À saída do UsbPort
-    private const val RS_MASK = 0b00010000 // Posição do bit que representa RS À saída do UsbPort
-    private const val ENABLE_MASK = 0b00100000 // Posição do bit que representa E À saída do UsbPort
+    private const val DATA_MASK = 0b00001111  // Posição do bit que representa Data À saída do UsbPort
+    private const val RS_MASK = 0b00010000    // Posição do bit que representa RS À saída do UsbPort
+    private const val ENABLE_MASK = 0b00100000// Posição do bit que representa E À saída do UsbPort
     private var cursorPos = Pos(0,0)
     private const val LINES = 2
-    private const val COLS = 16 // Dimensão do display.
+    private const val COLS = 16                // Dimensão do display.
 
     // Escreve um nibble de comando/dados no LCD
     private fun writeNibble(rs: Boolean, data: Int){
@@ -16,14 +16,13 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
         HAL.setBits(ENABLE_MASK) // Enable High
         HAL.writeBits(DATA_MASK, data)
         HAL.clearBits(ENABLE_MASK) // Enable Low
-        
     }
 
     // Escreve um byte de comando/dados no LCD
     private fun writeByte(rs: Boolean, data: Int){
         writeNibble(rs,data shr 4)
-        Time.sleep(1)
         writeNibble(rs, data)
+        Time.sleep(10)
     }
 
     // Escreve um comando no LCD
@@ -35,6 +34,7 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
     // Escreve um dado no LCD
     private fun writeDATA(data: Int){
         writeByte(true, data)
+        Time.sleep(10)
     }
 
     // Envia a sequência de iniciação para comunicação a 4 bits.
@@ -55,15 +55,15 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
 
     // Escreve um caráter na posição corrente.
     fun write(c: Char){
-        if(cursorPos.column == COLS-1 && cursorPos.line == 0) {
+        //if(cursorPos.column == COLS-1 && cursorPos.line == 0) {
             writeDATA(c.toInt())
-            writeCMD(0xC0)
-            cursorPos = Pos(cursorPos.line + 1,0)
-        }
-        else{
-            writeDATA(c.toInt())
-            if(cursorPos.column < 15) cursorPos = Pos(cursorPos.line, cursorPos.column+1)
-        }
+            //writeCMD(0xC0)
+        //    cursorPos = Pos(cursorPos.line + 1,0)
+       // }
+       // else{
+          //  writeDATA(c.toInt())
+           // if(cursorPos.column < 15) cursorPos = Pos(cursorPos.line, cursorPos.column+1)
+       // }
     }
 
     // Escreve uma string na posição corrente.
