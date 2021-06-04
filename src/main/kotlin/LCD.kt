@@ -55,15 +55,7 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
 
     // Escreve um caráter na posição corrente.
     fun write(c: Char){
-        //if(cursorPos.column == COLS-1 && cursorPos.line == 0) {
-            writeDATA(c.toInt())
-            //writeCMD(0xC0)
-        //    cursorPos = Pos(cursorPos.line + 1,0)
-       // }
-       // else{
-          //  writeDATA(c.toInt())
-           // if(cursorPos.column < 15) cursorPos = Pos(cursorPos.line, cursorPos.column+1)
-       // }
+        writeDATA(c.toInt())
     }
 
     // Escreve uma string na posição corrente.

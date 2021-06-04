@@ -17,6 +17,7 @@ object Door { // Controla o mecanismo da porta.
         HAL.setBits(openNCloseMask)
         Time.sleep(10)
         HAL.setBits(wrdMask)
+        while (!isFinished()) println()
         HAL.clearBits(wrdMask)
     }
 
@@ -26,6 +27,7 @@ object Door { // Controla o mecanismo da porta.
         HAL.clearBits(openNCloseMask)
         Time.sleep(10)
         HAL.setBits(wrdMask)
+        while (!isFinished()) println()
         HAL.clearBits(wrdMask)
     }
 
@@ -33,5 +35,11 @@ object Door { // Controla o mecanismo da porta.
     // Retorna true se o tiver terminado o comando
     fun isFinished(): Boolean = !HAL.isBit(busyMask)
 }
+
+
+fun main() {
+
+}
+
 
 

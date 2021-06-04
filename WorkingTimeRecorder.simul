@@ -1,0 +1,65 @@
+## --- Additional packages with Hardware to Simulator
+# for Modules used in Working Time Recorder
+package workingtimerecorder.simul    
+UsbPort = UsbPort
+
+# Generic modules to activate from Simulator
+kbd  = Keyboard("123456789*0#",4,3,1)
+lcd  = LCD
+m    = Switch ; "manut" ; setLabel("M")
+
+# Costume modules from WorkingTimeRecorder package
+kb  = KeyBuffer
+kt  = KeyTransmitter
+dc  = DoorController
+door= DoorMechanism
+
+## --- Project Links ---
+
+# --------------------------------------
+# KeyBoard Reader
+# --------------------------------------
+# Key Decode
+1 -> kbd.oe
+kbd.K[0-3] -> kb.D[0-3]
+kbd.val -> kb.DAV
+
+#Key buffer
+kb.DAC -> kbd.ack
+kb.K[0-3] -> kt.D[0-3]
+kb.Dval -> kt.DAV
+
+#Key Transmitter
+kt.DAC -> kb.ACK
+kt.Txd -> UsbPort.I0
+UsbPort.O7 -> kt.TXclk
+
+# --------------------------------------
+# LCD
+# --------------------------------------
+UsbPort.O[0-3] -> lcd.D[4-7]
+UsbPort.O4 -> lcd.rs
+UsbPort.O5 -> lcd.e
+
+# --------------------------------------
+# Door Controller
+# --------------------------------------
+UsbPort.O6  -> dc.wr
+UsbPort.O[0-4] -> dc.I[0-4]
+dc.busy -> UsbPort.I6
+dc.V[0-3] -> door.V[0-3]
+dc.On -> door.On/Off
+dc.Open -> door.Open/Close
+
+# --------------------------------------
+# Door
+# --------------------------------------
+door.FCclose -> dc.Sclose
+door.FCopen -> dc.Sopen
+door.Pdetect -> dc.Psensor
+
+# --------------------------------------
+# Manut
+# --------------------------------------
+m.out -> UsbPort.I7
+

@@ -4,9 +4,9 @@ import java.time.LocalDateTime
 
 object TUI {
     private var dateTime = LocalDateTime.now()
-    enum class Align{Center, Left, Right}
-    var date:String = "0-0-00"
-    var time:String = "00:00"
+    enum class Align{Center, Left, Right} // Tipos de alinhamento permitidos
+    lateinit var date:String           //
+    lateinit var time:String
 
     fun init(){
         writeDate()

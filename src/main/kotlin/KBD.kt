@@ -14,6 +14,7 @@ object KBD { // Ler teclas. Métodos retornam ‘0’..’9’,’#’,’*’ o
     fun getKey(): Char {
         val value = HAL.readBits(KEY_MASK)
         if (HAL.isBit(D_VAL) && value in array.indices){
+            setAck()
             return array[value]
         }
         else
