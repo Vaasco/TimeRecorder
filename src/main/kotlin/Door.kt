@@ -38,6 +38,12 @@ object Door { // Controla o mecanismo da porta.
 
 
 fun main() {
+    HAL.init()
+    while (true) {
+        Door.open(10)
+        Door.close(10)
+        Time.sleep(10000)
+    }
 
 }
 

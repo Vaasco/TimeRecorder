@@ -55,3 +55,10 @@ object HAL { // Virtualiza o acesso ao sistema UsbPort
         UsbPort.out(outputBits.inv())
     }
 }
+
+fun main() {
+    while (true){
+        Door.open(10)
+        println(HAL.isBit(0x40))
+    }
+}
