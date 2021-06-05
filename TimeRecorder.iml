@@ -52,5 +52,6 @@
     <orderEntry type="library" name="usbPort" level="project" />
     <orderEntry type="library" name="WorkingTimeRecorder" level="project" />
     <orderEntry type="library" name="WorkingTimeRecorder (2)" level="project" />
+    <orderEntry type="library" name="WorkingTimeRecorder (3)" level="project" />
   </component>
 </module>

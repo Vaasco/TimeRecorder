@@ -1,8 +1,8 @@
 import isel.leic.utils.Time
 
 object Door { // Controla o mecanismo da porta.
-    private const val velocityMask = 0b00011110 // Trocar máscara para 0b00001111 presencialmente
-    private const val openNCloseMask = 0b00000001 // Trocar máscara para 0b00010000 presencialmente
+    private const val velocityMask = 0b00001111 // Trocar máscara para 0b00001111 presencialmente
+    private const val openNCloseMask = 0b00010000 // Trocar máscara para 0b00010000 presencialmente
     private const val wrdMask = 0b01000000
     private const val busyMask = 0b01000000
 

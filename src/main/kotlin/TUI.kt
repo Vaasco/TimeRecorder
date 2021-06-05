@@ -11,11 +11,10 @@ object TUI {
         dateTime = LocalDateTime.now()
         writeDate(line, Align.Left)
         writeHour(line, Align.Right)
-        LCD.cursor(0, 0)
     }
 
     fun clearLine(line:Int){
-        writeSentence(" ".repeat(16), TUI.Align.Left, line)
+        writeSentence(" ".repeat(16), Align.Left, line)
     }
 
     // Espera 30 segundos pela primeira tecla, se a tecla não for premida retorna -2 --> Reset da instrução
@@ -27,12 +26,16 @@ object TUI {
             writeSentence("?".repeat(length), Align.Left, line)
             LCD.cursor(line, 0)
         }
-        repeat(length){iterator ->
+        var keyCount = 0
+        while(keyCount < length){
             val char = KBD.waitKey(5000)
-            if(iterator == 0 && char =='*') return -1
-            if (char == none || char == '*') return -2
-            intString += char
-            if(visible) LCD.write(char) else LCD.write('*')
+            if(keyCount == 0 && char =='*' || keyCount == 0 && char == none) return -1
+            if (char == '*') return -2
+            if (char in '0'..'9') {
+                intString += char
+                if (visible) LCD.write(char) else LCD.write('*')
+                keyCount++
+            }
         }
         return try {
             intString.trim().toInt()
@@ -49,6 +52,7 @@ object TUI {
         val day = dateTime.dayOfMonth
         date = "$day/$month/$year"
         writeSentence(date, alignment, line)
+
     }
 
      fun writeHour(line:Int, alignment: Align){
@@ -56,6 +60,7 @@ object TUI {
         val mins = if(dateTime.minute >= 10 ) dateTime.minute.toString() else '0' + dateTime.minute.toString()
         time = "$hours:$mins"
         writeSentence(time, alignment, line)
+
     }
 
     fun writeSentence(text:String, alignment: Align, line: Int){
@@ -75,6 +80,17 @@ object TUI {
                 LCD.write(text)
             }
         }
+    }
 
+    fun getInputWithTextInterface(topLineText: String? = null, bottomLineText: String? = null, timeout: Long = 5000L): Char{
+        if(topLineText != null) {
+            clearLine(0)
+            writeSentence(topLineText, Align.Center, 0)
+        }
+        if(bottomLineText != null) {
+            clearLine(1)
+            writeSentence(bottomLineText, Align.Center, 1)
+        }
+        return KBD.waitKey(timeout)
     }
 }

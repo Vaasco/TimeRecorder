@@ -31,7 +31,6 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
     // Escreve um dado no LCD
     private fun writeDATA(data: Int){
         writeByte(true, data)
-        Time.sleep(10)
     }
 
     // Envia a sequência de iniciação para comunicação a 4 bits.
