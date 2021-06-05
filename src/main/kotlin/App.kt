@@ -107,6 +107,7 @@ object App{ // Entry point da aplicação
             else{
                 val entryTimeinMilis = user.entryTime
                 val hoursText = msToTimeFormat(entryTimeinMilis)
+                val accumulatedTimeCalculate = 0  // TODO("Calcular o tempo acumulado à saída do utilizador)
                 userToReturn = user.copy(accumulatedTime = 0,entryTime = 0)
                 TUI.writeSentence("$dayOfWeek, $hoursText",TUI.Align.Left, 0)
                 TUI.writeSentence("$dayOfWeek, $hours",TUI.Align.Left, 1)
