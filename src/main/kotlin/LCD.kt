@@ -1,13 +1,11 @@
 import isel.leic.utils.Time
 
 object LCD{ // Escreve no LCD usando a interface a 4 bits
-    private data class Pos(var line:Int, var column:Int)
     private const val DATA_MASK = 0b00001111  // Posição do bit que representa Data À saída do UsbPort
     private const val RS_MASK = 0b00010000    // Posição do bit que representa RS À saída do UsbPort
     private const val ENABLE_MASK = 0b00100000// Posição do bit que representa E À saída do UsbPort
-    private var cursorPos = Pos(0,0)
-    private const val LINES = 2
-    private const val COLS = 16                // Dimensão do display.
+    const val LINES = 2
+    const val COLS = 16                // Dimensão do display.
 
     // Escreve um nibble de comando/dados no LCD
     private fun writeNibble(rs: Boolean, data: Int){
@@ -22,7 +20,6 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
     private fun writeByte(rs: Boolean, data: Int){
         writeNibble(rs,data shr 4)
         writeNibble(rs, data)
-        Time.sleep(10)
     }
 
     // Escreve um comando no LCD
@@ -39,7 +36,6 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
 
     // Envia a sequência de iniciação para comunicação a 4 bits.
     fun init(){
-        cursorPos = Pos(0, 0)
         Time.sleep(15)
         writeNibble(false,0b0011)
         Time.sleep(5)
@@ -71,13 +67,11 @@ object LCD{ // Escreve no LCD usando a interface a 4 bits
         else{
             writeCMD(0x80 + column)
         }
-        cursorPos = Pos(line, column)
     }
 
     // Envia comando para limpar o ecrã e posicionar o cursor em (0,0)
     fun clear(){
         writeCMD(1)
-        cursorPos = Pos(0, 0)
     }
 }
 

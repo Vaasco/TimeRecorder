@@ -1,10 +1,11 @@
 import java.io.File
+import java.util.*
 
 object Users {
     data class User(val UIN:Int, var PIN:Int, val name:String, val accumulatedTime:Int, val entryDate: String)
-    var uinsRemovedNotUsed = mutableListOf<Int>()
+    var uinsRemovedQueue = PriorityQueue<Int>()
     val usersFile: File = File("C:\\ISEL\\LIC\\TimeRecorder\\TextFiles\\Users.txt")
-    var listUsers:MutableList<User> = mutableListOf()
+    var usersMap = hashMapOf<Int, User>()
 
     fun init(){
         loadFiles()
@@ -19,38 +20,44 @@ object Users {
             val name = usersInfo[2]
             val accumulatedTime = usersInfo[3].toInt()
             val entryDate = usersInfo[4]
-            listUsers.add(User(uin, pin, name, accumulatedTime, entryDate))
+            val userToAdd = User(uin, pin, name, accumulatedTime, entryDate)
+            usersMap[uin] = userToAdd
         }
-        val file = File("C:\\ISEL\\LIC\\TimeRecorder\\TextFiles\\uinsRemovedToday.txt")
-        if (file.readText().trim() != "")
-            uinsRemovedNotUsed = file.readLines().map { it.toInt() }.toMutableList()
+        val uinsRemovedFile = File("C:\\ISEL\\LIC\\TimeRecorder\\TextFiles\\uinsRemovedToday.txt")
+        val scanner = Scanner(uinsRemovedFile)
+        fun addUinsToQueue(){
+            while (scanner.hasNextLine())
+                uinsRemovedQueue.offer(scanner.nextLine().toInt())
+        }
+        if(uinsRemovedFile.readLines().isNotEmpty())
+            addUinsToQueue()
     }
-
+    /*
     fun add(){
         fun printLine(){
             println("----------------------------------------------------------")
         }
-        if(listUsers.size >= 999) println("Limite máximo de utilizadores atingido.")
+        if(usersMap.size >= 999) println("Limite máximo de utilizadores atingido.")
         else{
-            val uin:Int = if(uinsRemovedNotUsed.isNotEmpty()){
-                val temp = uinsRemovedNotUsed.minOrNull()?.toInt()!!
-                uinsRemovedNotUsed.remove(temp)
+            val uin:Int = if(uinsRemovedQueue.isNotEmpty()){
+                val temp = uinsRemovedQueue.minOrNull()?.toInt()!!
+                uinsRemovedQueue.remove(temp)
                 temp
             }
-            else if(listUsers.isEmpty()) 0
-            else listUsers.last().UIN + 1
+            else if(usersMap.isEmpty()) 0
+            else usersMap.last().UIN + 1
             val uinString = String.format("%03d", uin)
             printLine()
             print("Digite o PIN do utilizador (4 Dígitos): ") // só quatro digitos
             val pin = readLine()!!.trim().toInt()
             val pinString = String.format("%04d", pin)
             printLine()
-            print("Digite o nome do utilizador: ") // Só pode ter 16 caracteres TODO()
+            print("Digite o nome do utilizador: ") // Só pode ter 16 caracteres TODO
             val name:String = readLine()!!.trim().capitalize()
             printLine()
             val accumulatedTime = 0
             val entryDate = TUI.date
-            listUsers.add(User(uin, pin, name, accumulatedTime, entryDate))
+            usersMap.add(User(uin, pin, name, accumulatedTime, entryDate))
             fun printUserInfo() {
                 println("O utilizador foi registado com sucesso e tem os seguintes dados:")
                 println("       Número identificador: $uinString")
@@ -67,7 +74,7 @@ object Users {
     fun remove(){
         print("Digite o UIN do utilizador que quer remover:")
         val uin = readLine()!!.trim().toInt()
-        val user = listUsers.filter { it.UIN == uin }
+        val user = usersMap.filter { it.UIN == uin }
         if(user.isEmpty()) {println("Utilizador não existe.");return}
         val name = user[0].name
         var answer = ""
@@ -76,10 +83,10 @@ object Users {
             answer = readLine()!!.trim().toUpperCase()
         }
         if(answer == "Y"){
-            listUsers.remove(user[0])
-            uinsRemovedNotUsed.add(uin)
+            usersMap.remove(user[0])
+            uinsRemovedQueue.add(uin)
             println("Utilizador removido com sucesso")
         }
-    }
+    }*/
 }
 

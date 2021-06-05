@@ -51,5 +51,6 @@
     <orderEntry type="library" name="KotlinJavaRuntime (2)" level="project" />
     <orderEntry type="library" name="usbPort" level="project" />
     <orderEntry type="library" name="WorkingTimeRecorder" level="project" />
+    <orderEntry type="library" name="WorkingTimeRecorder (2)" level="project" />
   </component>
 </module>
