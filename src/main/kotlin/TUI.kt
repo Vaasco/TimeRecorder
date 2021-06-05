@@ -21,9 +21,26 @@ object TUI {
         writeSentence(" ".repeat(16), Align.Left, line)
     }
 
-    // Espera 30 segundos pela primeira tecla, se a tecla não for premida retorna -2 --> Reset da instrução
-    // Se ocorreu um erro na conversão para inteiro retorna -1
-    fun readInteger(line:Int, length:Int, visible:Boolean, missing:Boolean):Int{
+
+    /**
+     * Lê um número composto por [length] algarismos através do [KBD] e vai escrevendo os algarismos
+     * no LCD na linha [line] e alinhamento [alignment] à medida que as respetivas teclas são pressionadas
+     *
+     * @param line Índice da linha a escrever (compreendido entre 0 e ([LCD.LINES] - 1))
+     *
+     * @param length número de algarismos do número
+     *
+     * @param visible se falso escreve o caracter ['*'] ao invés do algarismo premido
+     *
+     * @param missing se verdadeiro escreve o caracter ['?'] para sinalizar quantos algarismos faltam pressionar
+     *
+     * @return o número inserido, ou um dos seguintes erros:
+     *
+     * -1 sinaliza comando abortado
+     *
+     * -2 sinaliza intenção de reinserção
+     */
+    fun readInteger(line:Int, length:Int, visible:Boolean, missing:Boolean, alignment:Align):Int{
         var intString = ""
         val none = 0.toChar()
         if (missing) {
@@ -46,6 +63,11 @@ object TUI {
 
     /**
      * Escreve a data atual no LCD alinhado conforme [alignment] na linha [line]
+     *
+     * @param line índice da linha a escrever (compreendido entre 0 e ([LCD.LINES] - 1))
+     *
+     * @param alignment  tipo de alinhamento ([TUI.Align])
+     *
      */
      fun writeDate(line: Int, alignment: Align){
         val year = dateTime.year
@@ -58,6 +80,11 @@ object TUI {
 
     /**
      * Escreve a hora atual no LCD alinhado conforme [alignment] na linha [line]
+     *
+     * @param line  índice da linha a escrever (compreendido entre 0 e ([LCD.LINES] - 1) )
+     *
+     * @param alignment  tipo de alinhamento ([TUI.Align])
+     *
      */
      fun writeHour(line:Int, alignment: Align){
         val hours = if(dateTime.hour >= 10 ) dateTime.hour.toString() else '0' + dateTime.hour.toString()
@@ -68,7 +95,13 @@ object TUI {
     }
 
     /**
-     * Escreve a data atual no LCD alinhado conforme [alignment] na linha [line]
+     * Escreve a string [text] no LCD alinhado conforme [alignment] na linha [line]
+     *
+     * @param text  String que é escrita no LCD
+     *
+     * @param alignment  tipo de alinhamento ([TUI.Align])
+     *
+     * @param line  índice da linha a escrever (compreendido entre 0 e ([LCD.LINES] - 1) )
      */
     fun writeSentence(text:String, alignment: Align, line: Int){
         when (alignment) {
@@ -90,7 +123,15 @@ object TUI {
     }
 
     /**
-     *  Recebe uma tecla do keyboard
+     *  Escreve uma string em cada linha do LCD, retorna uma tecla do keyboard ou o caracter 0 após [timeout]
+     *
+     *  @param topLineText String que é escrita na linha 0 do LCD
+     *
+     *  @param bottomLineText  String que é escrita na linha 1 do LCD
+     *
+     *  @param timeout  Tempo limite para ser pressionada uma key
+     *
+     *  @return  O caracter da tecla que foi pressionada ou caracter com o código 0 após [timeout]
      */
     fun getInputWithTextInterface(topLineText: String? = null, bottomLineText: String? = null, timeout: Long = 5000L): Char{
         if(topLineText != null) {
