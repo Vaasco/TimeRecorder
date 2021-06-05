@@ -12,7 +12,11 @@ object TUI {
         writeDate(line, Align.Left)
         writeHour(line, Align.Right)
     }
-
+    /**
+     *  Limpa a linha do LCD identificada por [line]
+     *
+     *  @param line: índice da linha a remover (compreendido entre 0 e [LCD.LINES] - 1)
+     */
     fun clearLine(line:Int){
         writeSentence(" ".repeat(16), Align.Left, line)
     }
@@ -37,15 +41,12 @@ object TUI {
                 keyCount++
             }
         }
-        return try {
-            intString.trim().toInt()
-        }
-        catch (notInt: NumberFormatException){
-            -3
-        }
+        return intString.trim().toInt()
     }
 
-
+    /**
+     * Escreve a data atual no LCD alinhado conforme [alignment] na linha [line]
+     */
      fun writeDate(line: Int, alignment: Align){
         val year = dateTime.year
         val month = dateTime.month.value
@@ -55,6 +56,9 @@ object TUI {
 
     }
 
+    /**
+     * Escreve a hora atual no LCD alinhado conforme [alignment] na linha [line]
+     */
      fun writeHour(line:Int, alignment: Align){
         val hours = if(dateTime.hour >= 10 ) dateTime.hour.toString() else '0' + dateTime.hour.toString()
         val mins = if(dateTime.minute >= 10 ) dateTime.minute.toString() else '0' + dateTime.minute.toString()
@@ -63,6 +67,9 @@ object TUI {
 
     }
 
+    /**
+     * Escreve a data atual no LCD alinhado conforme [alignment] na linha [line]
+     */
     fun writeSentence(text:String, alignment: Align, line: Int){
         when (alignment) {
             Align.Left -> {
@@ -82,6 +89,9 @@ object TUI {
         }
     }
 
+    /**
+     *  Recebe uma tecla do keyboard
+     */
     fun getInputWithTextInterface(topLineText: String? = null, bottomLineText: String? = null, timeout: Long = 5000L): Char{
         if(topLineText != null) {
             clearLine(0)

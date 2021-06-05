@@ -1,12 +1,8 @@
 import isel.leic.utils.Time
 
-object App{
+object App{ // Entry point da aplicação
 
     fun run(){
-        // começar o entry point
-        // escrever data e hora
-        // ler uma entry
-
         initializeObjects()
         while(true) {
             var user: User?
@@ -84,6 +80,9 @@ object App{
         return userToReturn
     }
 
+    /**
+     * Inicializa os objetos que necessitam de initialização
+     */
    private fun initializeObjects(){
         HAL.init()
         LCD.init()
