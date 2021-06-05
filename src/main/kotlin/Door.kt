@@ -8,10 +8,6 @@ object Door { // Controla o mecanismo da porta.
 
     // Inicia a classe, estabelecendo os valores iniciais.
     fun init(){
-        // garantir que está fechada
-    }
-
-    private fun sendCommand(velocity:Int, openNClose:Boolean){
 
     }
 
@@ -45,13 +41,6 @@ object Door { // Controla o mecanismo da porta.
 }
 
 
-fun main() {
-    HAL.init()
-    Door.open(1)
-    Time.sleep(1000)
-    Door.close(2)
-
-}
 
 
 

@@ -2,18 +2,46 @@ import java.time.LocalDateTime
 
 
 object TUI {
-    private var dateTime = LocalDateTime.now()
-    enum class Align{Center, Left, Right} // Tipos de alinhamento permitidos
+    // Data e hora atual
+
+    /**
+     * Tipos de alinhamento de texto no LCD
+     */
+    enum class Align{
+        /**
+         * Alinha o texto ao centro conforme o número de caracteres
+         */
+        Center,
+
+        /**
+         * Alinha o texto à esquerda
+         */
+        Left,
+
+        /**
+         * Alinha o texto à direita
+         */
+        Right,
+
+        /**
+         * Não alinha, o texto é escrito conforme a posição atual do cursor
+         */
+        NotAligned
+    }
+    var dateTime: LocalDateTime = LocalDateTime.now()
     lateinit var date:String           // guarda a data atual em string (00-00-00)
     lateinit var time:String           // guarda a hora atual em string (00:00)
 
+    fun init(){
+        updateDateTime(1)
+    }
     fun updateDateTime(line: Int){
         dateTime = LocalDateTime.now()
         writeDate(line, Align.Left)
         writeHour(line, Align.Right)
     }
     /**
-     *  Limpa a linha do LCD identificada por [line]
+     *  Limpa a linha do [LCD] identificada por [line]
      *
      *  @param line: índice da linha a remover (compreendido entre 0 e [LCD.LINES] - 1)
      */
@@ -24,15 +52,15 @@ object TUI {
 
     /**
      * Lê um número composto por [length] algarismos através do [KBD] e vai escrevendo os algarismos
-     * no LCD na linha [line] e alinhamento [alignment] à medida que as respetivas teclas são pressionadas
+     * no [LCD] na linha [line] com começo na coluna [collumn] até à coluna [collumn] + [length] - 1, à medida que as respetivas teclas são pressionadas
      *
      * @param line Índice da linha a escrever (compreendido entre 0 e ([LCD.LINES] - 1))
      *
      * @param length número de algarismos do número
      *
-     * @param visible se falso escreve o caracter ['*'] ao invés do algarismo premido
+     * @param visible se falso escreve no [LCD] o caracter ['*'] ao invés do algarismo premido
      *
-     * @param missing se verdadeiro escreve o caracter ['?'] para sinalizar quantos algarismos faltam pressionar
+     * @param missing se verdadeiro escreve no [LCD] o caracter ['?'] para sinalizar quantos algarismos faltam pressionar
      *
      * @return o número inserido, ou um dos seguintes erros:
      *
@@ -40,12 +68,13 @@ object TUI {
      *
      * -2 sinaliza intenção de reinserção
      */
-    fun readInteger(line:Int, length:Int, visible:Boolean, missing:Boolean, alignment:Align):Int{
+    fun readInteger(line:Int, collumn:Int, length:Int, visible:Boolean=true, missing:Boolean=false):Int{
         var intString = ""
         val none = 0.toChar()
         if (missing) {
-            writeSentence("?".repeat(length), Align.Left, line)
-            LCD.cursor(line, 0)
+            LCD.cursor(line, collumn)
+            writeSentence("?".repeat(length), Align.NotAligned, line)
+            LCD.cursor(line, collumn)
         }
         var keyCount = 0
         while(keyCount < length){
@@ -62,42 +91,42 @@ object TUI {
     }
 
     /**
-     * Escreve a data atual no LCD alinhado conforme [alignment] na linha [line]
+     * Escreve a data atual no [LCD] alinhado conforme [alignment] na linha [line]
      *
      * @param line índice da linha a escrever (compreendido entre 0 e ([LCD.LINES] - 1))
      *
      * @param alignment  tipo de alinhamento ([TUI.Align])
      *
      */
-     fun writeDate(line: Int, alignment: Align){
+    private fun writeDate(line: Int, alignment: Align){
         val year = dateTime.year
-        val month = dateTime.month.value
-        val day = dateTime.dayOfMonth
+        val month = if(dateTime.monthValue >= 10 ) dateTime.monthValue else '0' + dateTime.monthValue.toString()
+        val day = if(dateTime.dayOfMonth >= 10 ) dateTime.dayOfMonth else '0' + dateTime.dayOfMonth.toString()
         date = "$day/$month/$year"
         writeSentence(date, alignment, line)
 
     }
 
     /**
-     * Escreve a hora atual no LCD alinhado conforme [alignment] na linha [line]
+     * Escreve a hora atual no  [LCD] alinhado conforme [alignment] na linha [line]
      *
      * @param line  índice da linha a escrever (compreendido entre 0 e ([LCD.LINES] - 1) )
      *
-     * @param alignment  tipo de alinhamento ([TUI.Align])
+     * @param alignment  tipo de alinhamento de texto ([TUI.Align])
      *
      */
-     fun writeHour(line:Int, alignment: Align){
-        val hours = if(dateTime.hour >= 10 ) dateTime.hour.toString() else '0' + dateTime.hour.toString()
-        val mins = if(dateTime.minute >= 10 ) dateTime.minute.toString() else '0' + dateTime.minute.toString()
+    private fun writeHour(line:Int, alignment: Align){
+        val hours = if(dateTime.hour >= 10 ) dateTime.hour else '0' + dateTime.hour
+        val mins = if(dateTime.minute >= 10 ) dateTime.minute else '0' + dateTime.minute
         time = "$hours:$mins"
         writeSentence(time, alignment, line)
 
     }
 
     /**
-     * Escreve a string [text] no LCD alinhado conforme [alignment] na linha [line]
+     * Escreve a string [text] no [LCD] alinhado conforme [alignment] na linha [line]
      *
-     * @param text  String que é escrita no LCD
+     * @param text  String que é escrita no [LCD]
      *
      * @param alignment  tipo de alinhamento ([TUI.Align])
      *
@@ -119,15 +148,18 @@ object TUI {
                 LCD.cursor(line, centerCollumn)
                 LCD.write(text)
             }
+            Align.NotAligned ->{
+                LCD.write(text)
+            }
         }
     }
 
     /**
      *  Escreve uma string em cada linha do LCD, retorna uma tecla do keyboard ou o caracter 0 após [timeout]
      *
-     *  @param topLineText String que é escrita na linha 0 do LCD
+     *  @param topLineText String que é escrita na linha 0 do [LCD]
      *
-     *  @param bottomLineText  String que é escrita na linha 1 do LCD
+     *  @param bottomLineText  String que é escrita na linha 1 do [LCD]
      *
      *  @param timeout  Tempo limite para ser pressionada uma key
      *

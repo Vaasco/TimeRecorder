@@ -1,10 +1,13 @@
 import isel.leic.utils.Time
 
 object App{ // Entry point da aplicação
+
     /**
      * Entry point
      */
     fun run(){
+        val hardCodedUser = User(0, 0, "Teodosie Cabral", 0, 0)
+        usersMap[hardCodedUser.UIN] = hardCodedUser
         initializeObjects()
         while(true) {
             var user: User?
@@ -18,22 +21,24 @@ object App{ // Entry point da aplicação
     }
 
     /**
-     * Lê o utilizador se inseriu o UIN e PIN corretamente
+     * Começa pela leitura de um inteiro de 3 algarismos (UIN), de seguida lê um inteiro de 4 algarismos (PIN)
      *
-     *@return O utilizador se inseriu corretamente as suas credenciais
+     * @return O [User] identificado por UIN no [usersMap]
      */
     private fun readEntry():User?{
         TUI.clearLine(1)
-        TUI.writeSentence("UIN ", TUI.Align.Right, 1)
-        val uin = TUI.readInteger(1, 3, visible=true, missing =true, TUI.Align.Left)
+        val uinText = "UIN:"
+        TUI.writeSentence(uinText, TUI.Align.Left, 1)
+        val uin = TUI.readInteger(1, uinText.length,3, visible=true, missing =true)
         if(uin < 0) // < 0 significa que ocorreu um erro, ou que o utilizador se enganou
             return null
         else{
             TUI.clearLine(1)
             var pin:Int
+            val textPin = "PIN:"
             do{
-                TUI.writeSentence("PIN ", TUI.Align.Right, 1)
-                pin = TUI.readInteger(1, 4, visible=false, missing =true)
+                TUI.writeSentence(textPin, TUI.Align.Left, 1)
+                pin = TUI.readInteger(1,textPin.length, 4, visible=false, missing =true)
             }while (pin == -2)
             val user = usersMap[uin]
             if(user != null && pin == user.PIN)
@@ -46,9 +51,9 @@ object App{ // Entry point da aplicação
     /**
      * Faz a alteração do PIN de um utilizador
      *
-     * @param user O utilizador que inseriu o UIN e o PIN corretamente e deseja alterar o PIN
+     * @param user o [User] que deseja alterar o PIN
      *
-     * @return O utilizador com o novo PIN se alterado
+     * @return o [User] com o novo PIN se alterado
      *
      */
     private fun changePin(user: User): User{
@@ -56,14 +61,14 @@ object App{ // Entry point da aplicação
         LCD.clear()
         if (key == '#'){
             TUI.writeSentence("New PIN:", TUI.Align.Left, 0)
-            val newPin = TUI.readInteger(1, 4, visible = false, missing = true)
+            val newPin = TUI.readInteger(1, 0, 4, visible = false, missing = true)
             LCD.clear()
             TUI.writeSentence("Confirm new PIN:", TUI.Align.Left, 0)
-            val confirmPin = TUI.readInteger(1, 4, visible = false, missing = true)
+            val confirmPin = TUI.readInteger(1,0, 4, visible = false, missing = true)
             LCD.clear()
             if(newPin == confirmPin && newPin > 0){
-                user.PIN = newPin
                 TUI.writeSentence("PIN changed.", TUI.Align.Center, 0)
+                return user.copy(PIN = newPin)
             }
             else  TUI.writeSentence("PIN not changed.", TUI.Align.Left, 0)
             Time.sleep(2000)
@@ -72,9 +77,9 @@ object App{ // Entry point da aplicação
     }
 
     /**
-     * Faz a gestão da entrada/saída de um utilizador
+     * Faz a gestão da entrada/saída de um [User]
      *
-     * Recebe o utilizador escrevendo uma saudação no LCD
+     * Recebe o [User] escrevendo uma saudação no LCD
      *
      * Altera o seu PIN se requisitado
      *
@@ -84,13 +89,35 @@ object App{ // Entry point da aplicação
      *
      * Controla o mecanismo da porta automática
      *
-     * @param user O utilizador que inseriu o UIN e o PIN corretamente
+     * @param user o [User] que inseriu o UIN e o PIN corretamente
      *
-     * @return O utilizador com informações de entrada/saída atualizadas e o novo PIN se alterado
+     * @return o [User] com informações de entrada/saída atualizadas e o novo PIN se alterado
      */
    private fun manageEntry(user: User): User{
+        fun manageEntryTime(user: User):User{
+            val dayOfWeek = TUI.dateTime.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.UK)
+            val hours = TUI.time
+            val userToReturn: User
+            if(user.entryTime == 0L){
+                TUI.writeSentence("$dayOfWeek, $hours",TUI.Align.Left, 0)
+                TUI.writeSentence(user.accumulatedTime.toString(), TUI.Align.Right, 0)
+                val currentTimeinMilis = (TUI.dateTime.second * 1000L)
+                userToReturn = user.copy(entryTime = currentTimeinMilis)
+            }
+            else{
+                val entryTimeinMilis = user.entryTime
+                val hoursText = msToTimeFormat(entryTimeinMilis)
+                userToReturn = user.copy(accumulatedTime = 0,entryTime = 0)
+                TUI.writeSentence("$dayOfWeek, $hoursText",TUI.Align.Left, 0)
+                TUI.writeSentence("$dayOfWeek, $hours",TUI.Align.Left, 1)
+                TUI.writeSentence(userToReturn.accumulatedTime.toString(), TUI.Align.Right, 1)
+            }
+            Time.sleep(5000)
+            LCD.clear()
+            return userToReturn
+        }
         /**
-         *Faz a gestão da abertura e fecho da porta
+         * Faz a gestão da abertura e fecho da porta à entrada de um utilizador
          */
        fun manageDoor(){
            TUI.writeSentence("Door opening", TUI.Align.Center, 0)
@@ -110,16 +137,32 @@ object App{ // Entry point da aplicação
         val changePinKey = TUI.getInputWithTextInterface()
         if(changePinKey == '#') userToReturn = changePin(user)
         LCD.clear()
+        userToReturn = manageEntryTime(userToReturn)
         manageDoor()
         return userToReturn
     }
 
     /**
-     * Inicializa os objetos que necessitam de initialização
+     * Inicializa os objetos que necessitam de inicialização
+     *
+     * [HAL]
+     * [LCD]
+     * [Door]
+     * [TUI]
      */
    private fun initializeObjects(){
         HAL.init()
         LCD.init()
         Door.init()
+        TUI.init()
+    }
+
+    private fun msToTimeFormat(time:Long):String{
+        val hours = time /  360000F
+        val decimalPart = hours - (time / 360000)
+        val minutes = (decimalPart * 600).toInt() // ERRADO conversão para minutos TODO()
+        val hoursText = String.format("%02d", hours.toInt())
+        val minsText = String.format("%02d", minutes)
+        return "$hoursText:$minsText"
     }
 }
