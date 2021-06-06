@@ -1,4 +1,11 @@
 import isel.leic.utils.Time
+import java.time.LocalDateTime
+import java.time.format.TextStyle
+import java.util.*
+
+const val BOTTOM_LINE = 1
+const val TOP_LINE = 0
+const val DEFAULT_TIME_SLEEP = 5000L
 
 object App{ // Entry point da aplicação
 
@@ -19,7 +26,13 @@ object App{ // Entry point da aplicação
             usersMap[user.UIN] = user
         }
     }
-    // TODO("Trocar a função updateDateTime para o object App")
+
+    fun updateDateTime(line: Int){
+        TUI.dateTime = LocalDateTime.now()
+        TUI.writeDate(line, TUI.Align.Left)
+        TUI.writeHour(line, TUI.Align.Right)
+    }
+
     /**
      * Começa pela leitura de um inteiro de 3 algarismos (UIN), de seguida lê um inteiro de 4 algarismos (PIN)
      *
@@ -69,9 +82,8 @@ object App{ // Entry point da aplicação
             if(newPin == confirmPin && newPin > 0){
                 TUI.writeSentence("PIN changed.", TUI.Align.Center, 0)
                 return user.copy(PIN = newPin)
-            }
-            else  TUI.writeSentence("PIN not changed.", TUI.Align.Left, 0)
-            Time.sleep(2000)
+            } else TUI.writeSentence("PIN not changed.", TUI.Align.Left, TOP_LINE)
+            Time.sleep(DEFAULT_TIME_SLEEP)
         }
         return user
     }
@@ -82,8 +94,6 @@ object App{ // Entry point da aplicação
      * Recebe o [User] escrevendo uma saudação no LCD
      *
      * Altera o seu PIN se requisitado
-     *
-     * TODO("Mostra o tempo acumulado e hora de entrada/saída")
      *
      * TODO("Cria um registo de entrada/saída")
      *
@@ -120,21 +130,22 @@ object App{ // Entry point da aplicação
         /**
          * Faz a gestão da abertura e fecho da porta à entrada de um utilizador
          */
-       fun manageDoor(){
-           TUI.writeSentence("Door opening", TUI.Align.Center, 0)
-           TUI.writeSentence(user.name, TUI.Align.Center,1)
-           Door.open(6)
-           TUI.clearLine(0)
-           TUI.writeSentence("Door opened", TUI.Align.Center, 0)
-           Time.sleep(5000)
-           TUI.writeSentence("Door closing", TUI.Align.Center, 0)
-           Door.close(2)
-           LCD.clear()
-       }
+        fun manageDoor() {
+            TUI.writeSentence("Door opening", TUI.Align.Center, TOP_LINE)
+            TUI.writeSentence(user.name, TUI.Align.Center, BOTTOM_LINE)
+            Door.open(6)
+            TUI.clearLine(0)
+            TUI.writeSentence("Door opened", TUI.Align.Center, TOP_LINE)
+            Time.sleep(DEFAULT_TIME_SLEEP)
+            TUI.writeSentence("Door closing", TUI.Align.Center, TOP_LINE)
+            Door.close(2)
+            LCD.clear()
+        }
+
         var userToReturn = user
         LCD.clear()
-        TUI.writeSentence("Welcome",  TUI.Align.Center, 0)
-        TUI.writeSentence(user.name, TUI.Align.Center, 1)
+        TUI.writeSentence("Welcome", TUI.Align.Center, TOP_LINE)
+        TUI.writeSentence(user.name, TUI.Align.Center, BOTTOM_LINE)
         val changePinKey = TUI.getInputWithTextInterface()
         if(changePinKey == '#') userToReturn = changePin(user)
         LCD.clear()
@@ -158,12 +169,12 @@ object App{ // Entry point da aplicação
         TUI.init()
     }
 
-    private fun msToTimeFormat(time:Long):String{
-        val hours = time /  360000F
-        val decimalPart = hours - (time / 360000)
-        val minutes = (decimalPart * 600).toInt() // ERRADO conversão para minutos TODO()
-        val hoursText = String.format("%02d", hours.toInt())
-        val minsText = String.format("%02d", minutes)
-        return "$hoursText:$minsText"
+    private fun msToTimeFormat(time: Long): String {
+        val totalSeconds = time / 1000
+        val totalMinutes = totalSeconds / 60
+        val currentMinutes = totalMinutes % 60
+        val totalHours = totalMinutes / 60
+        val currentHours = totalHours %24
+        return "$currentHours:$currentMinutes"
     }
 }

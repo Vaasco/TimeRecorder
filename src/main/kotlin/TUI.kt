@@ -1,6 +1,5 @@
 import java.time.LocalDateTime
 
-
 object TUI {
     // Data e hora atual
 
@@ -33,13 +32,9 @@ object TUI {
     lateinit var time:String           // guarda a hora atual em string (00:00)
 
     fun init(){
-        updateDateTime(1)
+        App.updateDateTime(1)
     }
-    fun updateDateTime(line: Int){
-        dateTime = LocalDateTime.now()
-        writeDate(line, Align.Left)
-        writeHour(line, Align.Right)
-    }
+
     /**
      *  Limpa a linha do [LCD] identificada por [line]
      *
@@ -98,7 +93,7 @@ object TUI {
      * @param alignment  tipo de alinhamento ([TUI.Align])
      *
      */
-    private fun writeDate(line: Int, alignment: Align){
+     fun writeDate(line: Int, alignment: Align){
         val year = dateTime.year
         val month = if(dateTime.monthValue >= 10 ) dateTime.monthValue else '0' + dateTime.monthValue.toString()
         val day = if(dateTime.dayOfMonth >= 10 ) dateTime.dayOfMonth else '0' + dateTime.dayOfMonth.toString()
@@ -115,7 +110,7 @@ object TUI {
      * @param alignment  tipo de alinhamento de texto ([TUI.Align])
      *
      */
-    private fun writeHour(line:Int, alignment: Align){
+     fun writeHour(line:Int, alignment: Align){
         val hours = if(dateTime.hour >= 10 ) dateTime.hour else '0' + dateTime.hour
         val mins = if(dateTime.minute >= 10 ) dateTime.minute else '0' + dateTime.minute
         time = "$hours:$mins"
