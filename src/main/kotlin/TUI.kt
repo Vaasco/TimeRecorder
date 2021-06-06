@@ -1,8 +1,6 @@
 import java.time.LocalDateTime
 
 object TUI {
-    // Data e hora atual
-
     /**
      * Tipos de alinhamento de texto no LCD
      */
@@ -26,13 +24,6 @@ object TUI {
          * Não alinha, o texto é escrito conforme a posição atual do cursor
          */
         NotAligned
-    }
-    var dateTime: LocalDateTime = LocalDateTime.now()
-    lateinit var date:String           // guarda a data atual em string (00-00-00)
-    lateinit var time:String           // guarda a hora atual em string (00:00)
-
-    fun init(){
-        App.updateDateTime(1)
     }
 
     /**
@@ -83,38 +74,6 @@ object TUI {
             }
         }
         return intString.trim().toInt()
-    }
-
-    /**
-     * Escreve a data atual no [LCD] alinhado conforme [alignment] na linha [line]
-     *
-     * @param line índice da linha a escrever (compreendido entre 0 e ([LCD.LINES] - 1))
-     *
-     * @param alignment  tipo de alinhamento ([TUI.Align])
-     *
-     */
-     fun writeDate(line: Int, alignment: Align){
-        val year = dateTime.year
-        val month = if(dateTime.monthValue >= 10 ) dateTime.monthValue else '0' + dateTime.monthValue.toString()
-        val day = if(dateTime.dayOfMonth >= 10 ) dateTime.dayOfMonth else '0' + dateTime.dayOfMonth.toString()
-        date = "$day/$month/$year"
-        writeSentence(date, alignment, line)
-
-    }
-
-    /**
-     * Escreve a hora atual no  [LCD] alinhado conforme [alignment] na linha [line]
-     *
-     * @param line  índice da linha a escrever (compreendido entre 0 e ([LCD.LINES] - 1) )
-     *
-     * @param alignment  tipo de alinhamento de texto ([TUI.Align])
-     *
-     */
-     fun writeHour(line:Int, alignment: Align){
-        val hours = if(dateTime.hour >= 10 ) dateTime.hour else '0' + dateTime.hour
-        val mins = if(dateTime.minute >= 10 ) dateTime.minute else '0' + dateTime.minute
-        time = "$hours:$mins"
-        writeSentence(time, alignment, line)
     }
 
     /**

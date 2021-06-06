@@ -7,7 +7,10 @@ const val BOTTOM_LINE = 1
 const val TOP_LINE = 0
 const val DEFAULT_TIME_SLEEP = 5000L
 
-object App{ // Entry point da aplicação
+object App { // Entry point da aplicação
+
+    // Data e hora atual
+    private var dateTime: LocalDateTime = LocalDateTime.now()
 
     /**
      * Entry point
@@ -27,10 +30,50 @@ object App{ // Entry point da aplicação
         }
     }
 
-    fun updateDateTime(line: Int){
-        TUI.dateTime = LocalDateTime.now()
-        TUI.writeDate(line, TUI.Align.Left)
-        TUI.writeHour(line, TUI.Align.Right)
+    /**
+     * Atualiza a hora e data
+     *
+     * @param line índice da linha a escrever (compreendido entre 0 e ([LCD.LINES] - 1))
+     *
+     */
+    private fun updateDateTime(line: Int){
+        dateTime = LocalDateTime.now()
+        writeDate(line, TUI.Align.Left)
+        writeHour(line, TUI.Align.Right)
+    }
+
+    /**
+     * Escreve a data atual no [LCD] alinhado conforme [alignment] na linha [line]
+     *
+     * @param line índice da linha a escrever (compreendido entre 0 e ([LCD.LINES] - 1))
+     *
+     * @param alignment  tipo de alinhamento ([TUI.Align])
+     *
+     */
+    private fun writeDate(line: Int, alignment: TUI.Align){
+        val year = dateTime.year
+        val month = dateTime.month.value
+        val day = dateTime.dayOfMonth
+        val dayString = String.format("%02d", day)
+        val monthString = String.format("%02d", month)
+        val dateInString = "$dayString/$monthString/$year"
+        TUI.writeSentence(dateInString, alignment, line)
+    }
+
+    /**
+     * Escreve a hora atual no  [LCD] alinhado conforme [alignment] na linha [line]
+     *
+     * @param line  índice da linha a escrever (compreendido entre 0 e ([LCD.LINES] - 1) )
+     *
+     * @param alignment  tipo de alinhamento de texto ([TUI.Align])
+     */
+    private fun writeHour(line:Int, alignment: TUI.Align){
+        val hours = dateTime.hour
+        val mins = dateTime.minute
+        val hoursString = String.format("%02d", hours)
+        val minsString = String.format("%02d", mins)
+        val timeInString = "$hoursString:$minsString"
+        TUI.writeSentence(timeInString, alignment, line)
     }
 
     /**
@@ -103,45 +146,7 @@ object App{ // Entry point da aplicação
      *
      * @return o [User] com informações de entrada/saída atualizadas e o novo PIN se alterado
      */
-   private fun manageEntry(user: User): User{
-        fun manageEntryTime(user: User):User{
-            val dayOfWeek = TUI.dateTime.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.UK)
-            val hours = TUI.time
-            val userToReturn: User
-            if(user.entryTime == 0L){
-                TUI.writeSentence("$dayOfWeek, $hours",TUI.Align.Left, 0)
-                TUI.writeSentence(user.accumulatedTime.toString(), TUI.Align.Right, 0)
-                val currentTimeinMilis = (TUI.dateTime.second * 1000L)
-                userToReturn = user.copy(entryTime = currentTimeinMilis)
-            }
-            else{
-                val entryTimeinMilis = user.entryTime
-                val hoursText = msToTimeFormat(entryTimeinMilis)
-                val accumulatedTimeCalculate = 0  // TODO("Calcular o tempo acumulado à saída do utilizador)
-                userToReturn = user.copy(accumulatedTime = 0,entryTime = 0)
-                TUI.writeSentence("$dayOfWeek, $hoursText",TUI.Align.Left, 0)
-                TUI.writeSentence("$dayOfWeek, $hours",TUI.Align.Left, 1)
-                TUI.writeSentence(userToReturn.accumulatedTime.toString(), TUI.Align.Right, 1)
-            }
-            Time.sleep(5000)
-            LCD.clear()
-            return userToReturn
-        }
-        /**
-         * Faz a gestão da abertura e fecho da porta à entrada de um utilizador
-         */
-        fun manageDoor() {
-            TUI.writeSentence("Door opening", TUI.Align.Center, TOP_LINE)
-            TUI.writeSentence(user.name, TUI.Align.Center, BOTTOM_LINE)
-            Door.open(6)
-            TUI.clearLine(0)
-            TUI.writeSentence("Door opened", TUI.Align.Center, TOP_LINE)
-            Time.sleep(DEFAULT_TIME_SLEEP)
-            TUI.writeSentence("Door closing", TUI.Align.Center, TOP_LINE)
-            Door.close(2)
-            LCD.clear()
-        }
-
+    private fun manageEntry(user: User): User {
         var userToReturn = user
         LCD.clear()
         TUI.writeSentence("Welcome", TUI.Align.Center, TOP_LINE)
@@ -152,6 +157,43 @@ object App{ // Entry point da aplicação
         userToReturn = manageEntryTime(userToReturn)
         manageDoor()
         return userToReturn
+    }
+
+    fun userUpdateEntryTime(user: User): User {
+        return if (user.entryTime == 0L) {
+            user.copy(entryTime = Time.getTimeInMillis())
+        } else {
+            val accumulatedTimeCalculated = user.accumulatedTime + (Time.getTimeInMillis() - user.entryTime)
+            user.copy(accumulatedTime = accumulatedTimeCalculated, entryTime = 0L)
+        }
+    }
+
+    fun writeEntryAndExitTimeWithAccumulate(accumulate: Long, exit: Long?=null, entry: Long){
+        val formatter = SimpleDateFormat("HH:mm", Locale.UK)
+        val dayOfTheWeek = dateTime.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.UK)
+        val exitTimeText = if (exit != null) "$dayOfTheWeek, " + formatter.format(exit) else  "???, ??:??"
+        val accumulatedTimeText = msToTimeFormat(accumulate)
+        val entryTimeText = "$dayOfTheWeek, " + formatter.format(entry)
+        TUI.writeSentence(entryTimeText, TUI.Align.Left, TOP_LINE)
+        TUI.writeSentence(exitTimeText, TUI.Align.Left, BOTTOM_LINE)
+        TUI.writeSentence(accumulatedTimeText, TUI.Align.Right, if(exit == null) TOP_LINE else BOTTOM_LINE)
+        Time.sleep(DEFAULT_TIME_SLEEP)
+        LCD.clear()
+    }
+
+    /**
+     * Faz a gestão da abertura e fecho da porta à entrada de um utilizador
+     */
+    fun manageDoor(userName:String) {
+        TUI.writeSentence("Door opening", TUI.Align.Center, TOP_LINE)
+        TUI.writeSentence(userName, TUI.Align.Center, BOTTOM_LINE)
+        Door.open(6)
+        TUI.clearLine(0)
+        TUI.writeSentence("Door opened", TUI.Align.Center, TOP_LINE)
+        Time.sleep(DEFAULT_TIME_SLEEP)
+        TUI.writeSentence("Door closing", TUI.Align.Center, TOP_LINE)
+        Door.close(2)
+        LCD.clear()
     }
 
     /**
@@ -166,7 +208,6 @@ object App{ // Entry point da aplicação
         HAL.init()
         LCD.init()
         Door.init()
-        TUI.init()
     }
 
     private fun msToTimeFormat(time: Long): String {
