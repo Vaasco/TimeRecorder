@@ -120,7 +120,6 @@ object TUI {
         val mins = if(dateTime.minute >= 10 ) dateTime.minute else '0' + dateTime.minute
         time = "$hours:$mins"
         writeSentence(time, alignment, line)
-
     }
 
     /**

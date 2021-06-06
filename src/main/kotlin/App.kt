@@ -19,7 +19,7 @@ object App{ // Entry point da aplicação
             usersMap[user.UIN] = user
         }
     }
-
+    // TODO("Trocar a função updateDateTime para o object App")
     /**
      * Começa pela leitura de um inteiro de 3 algarismos (UIN), de seguida lê um inteiro de 4 algarismos (PIN)
      *
