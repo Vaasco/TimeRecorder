@@ -210,6 +210,15 @@ object App { // Entry point da aplicação
         Door.init()
     }
 
+    /**
+     *
+     * Passa o tempo de mílissegundoss para um formato de horas e minutos em formato de texto
+     *
+     * @param time tempo em milissegundos
+     *
+     * @return o tempo em formato de texto "horasTotais:minutosAtuais"
+     *
+     */
     private fun msToTimeFormat(time: Long): String {
         val totalSeconds = time / 1000
         val totalMinutes = totalSeconds / 60
