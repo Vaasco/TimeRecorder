@@ -35,6 +35,9 @@ object TUI {
         writeSentence(" ".repeat(16), Align.Left, line)
     }
 
+    fun clear(){
+        LCD.clear()
+    }
 
     /**
      * Lê um número composto por [length] algarismos através do [KBD] e vai escrevendo os algarismos

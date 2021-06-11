@@ -8,7 +8,7 @@ object HAL { // Virtualiza o acesso ao sistema UsbPort
      */
     private var outputBits = 0
 
-    private fun usbPortIn() = UsbPort.`in`().inv()
+    private fun usbPortIn():Int = UsbPort.`in`().inv()
 
     // Escreve o valor de value nos bits de output do UsbPort
     private fun writeValueInOutput(value:Int) = UsbPort.out(value.inv())

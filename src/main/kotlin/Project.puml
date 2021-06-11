@@ -1,0 +1,102 @@
+@startuml
+
++enum Align{
+    Center
+    Left
+    Right
+    NotAligned
+}
+
+class App{
+}
+
+class TUI{
+    +writeSentence(text:String, line:Int, alignment:Align)
+
+}
+
+class LCD{
+    +LINES:Int
+    +COLS:Int
+    -writeNibble(rs:Boolean, data:Int)
+    -writeByte(rs:Boolean, data:Int)
+    -writeCMD(data:Int)
+    -writeData(data:Int)
+    +init()
+    +write(c:Char)
+    +write(text:String)
+    +cursor(line:Int, column:Int)
+    +clear()
+}
+
+class KBD{
+    -NONE:Char
+    -array:Char[]
+    -getKeyParallel():Char
+    -getKeySerial():Char
+    +waitKey(timeout:Long):Char
+}
+
+class HAL{
+    -outputBits
+    -usbPortIn():Int
+    -writeValueInOutput(value:Int)
+    +init()
+    +isBit(mask:Int):Boolean
+    +readBits(mask:Int):Int
+    +writeBits(mask:Int, value:Int)
+    +setBits(mask:Int)
+    +clearBits(mask:Int)
+}
+
+class Door{
+    +init()
+    -sendCommand(speed:Int, openNClose:Boolean)
+    +open(speed:Int)
+    +close(speed:Int
+    -isFinished():Boolean
+}
+
++class Log{
+}
+
+class Users{
+    -usersMap:HashMap<Int, User>
+    +addOrReplaceUser(:User)
+    +removeUser(:User)
+    -mapToFileString():String[]
+}
+
++class User{
+    +uid
+    +pin
+    +name
+    +entryTime
+    +accumulatedTime
+    +toFileString()
+}
+
+class KeyReceiver{
+
+}
+
+KBD -> HAL:<<use>>
+LCD --> HAL:<<use>>
+TUI +- Align
+FileAcess <-- Users:file
+FileAcess --> Users:usersInfo:String[]
+FileAcess <-- Logs:file
+Users *-- User:usersMap "*"
+Users +-- User:"       "
+App <-- TUI:<<use>>
+App --> Users:<<use>>
+App --> User:"<<use>>"
+App --> Logs:<<use>>
+KBD -> KeyReceiver:<<use>>
+KeyReceiver -> HAL:<<use>>
+TUI --> LCD:<<use>>
+TUI -> KBD:<<use>>
+HAL <- Door:<<use>>
+Logs +-- Log
+
+@enduml

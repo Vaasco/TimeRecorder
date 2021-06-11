@@ -1,11 +1,42 @@
 @startuml
 
-object FileAcess
-object Users
-object Logs
+class FileAcess{
+    +usersInfo
+    -readUsersFile():String[]
+}
+class Users{
+    -usersMap:HashMap<Int, User>
+    +addUser(:User)
+    +removeUser(:User)
+    mapToFileString():String[]
+}
+
+class User{
+    +uid
+    +pin
+    +name
+    +entryTime
+    +accumulatedTime
+    +toFileString()
+}
+
+class Logs{
+    +Log
+    -logToString()
+}
+
+class Log{
+
+}
+
 
 FileAcess <-- Users:file
-FileAcess -->Users:info:array[string]
+FileAcess -->Users:usersInfo:String[]
+FileAcess <-- Logs:file
+Users *-- User:HashMap
+Logs *-- Log
+
+
 
 
 @enduml
