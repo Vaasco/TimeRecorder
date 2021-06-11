@@ -59,8 +59,3 @@ object HAL { // Virtualiza o acesso ao sistema UsbPort
         writeValueInOutput(outputBits)
     }
 }
-
-fun main() {
-    HAL.init()
-    HAL.writeBits(0b11110000, 0b10110000)
-}

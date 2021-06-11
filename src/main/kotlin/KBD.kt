@@ -4,6 +4,8 @@ object KBD { // Ler teclas. Métodos retornam ‘0’..’9’,’#’,’*’ o
 
     private const val NONE: Char = 0.toChar()
 
+    private const val SERIAL = false
+
     // Mask que representa os bits de Kcode no UsbPort
     private const val KEY_MASK = 0b00001111
 
@@ -17,7 +19,7 @@ object KBD { // Ler teclas. Métodos retornam ‘0’..’9’,’#’,’*’ o
     private val array = charArrayOf('1','4','7','*','2','5','8','0','3','6','9','#')
 
     // Retorna de imediato a tecla premida ou NONE se não há tecla premida.
-    fun getKey(): Char {
+    private fun getKeyParalel(): Char {
         val value = HAL.readBits(KEY_MASK)
         return if (HAL.isBit(D_VAL) && value in array.indices){
             HAL.setBits(ACK_MASK)
@@ -28,13 +30,17 @@ object KBD { // Ler teclas. Métodos retornam ‘0’..’9’,’#’,’*’ o
             NONE
     }
 
+    private fun getKeySerial():Char{
+        return if (HAL.isBit(ACK_MASK)) array[KeyReceiver.rcv()] else NONE
+    }
+
     // Retorna quando a tecla for premida ou NONE após decorrido ‘timeout’ milisegundos.
     fun waitKey(timeout: Long): Char{
         val msBefore = System.currentTimeMillis()
         var currentTime = 0L
         var key = NONE
         while(currentTime - msBefore < timeout && key == NONE){
-            key = getKey()
+            key = getKeyParalel()
             currentTime = System.currentTimeMillis()
         }
         return key

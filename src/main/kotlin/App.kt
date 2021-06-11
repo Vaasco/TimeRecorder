@@ -1,11 +1,16 @@
 import isel.leic.utils.Time
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.TextStyle
 import java.util.*
+import kotlin.collections.HashMap
 
 const val BOTTOM_LINE = 1
 const val TOP_LINE = 0
 const val DEFAULT_TIME_SLEEP = 5000L
+
+data class User(val UIN:Int, val PIN:Int, val name:String, val accumulatedTime:Long, val entryTime: Long)
+val usersSet = HashMap<Int, User>()
 
 object App { // Entry point da aplicação
 
@@ -17,16 +22,16 @@ object App { // Entry point da aplicação
      */
     fun run(){
         val hardCodedUser = User(0, 0, "Teodosie Cabral", 0, 0)
-        usersMap[hardCodedUser.UIN] = hardCodedUser
+        usersSet[hardCodedUser.UIN] = hardCodedUser
         initializeObjects()
         while(true) {
             var user: User?
             do {
-                TUI.updateDateTime(0)
+                updateDateTime(0)
                 user = readEntry()
             } while (user == null)
             user = manageEntry(user)
-            usersMap[user.UIN] = user
+            usersSet[user.UIN] = user
         }
     }
 
@@ -79,7 +84,7 @@ object App { // Entry point da aplicação
     /**
      * Começa pela leitura de um inteiro de 3 algarismos (UIN), de seguida lê um inteiro de 4 algarismos (PIN)
      *
-     * @return O [User] identificado por UIN no [usersMap]
+     * @return O [User] identificado por UIN no [usersSet]
      */
     private fun readEntry():User?{
         TUI.clearLine(1)
@@ -96,7 +101,7 @@ object App { // Entry point da aplicação
                 TUI.writeSentence(textPin, TUI.Align.Left, 1)
                 pin = TUI.readInteger(1,textPin.length, 4, visible=false, missing =true)
             }while (pin == -2)
-            val user = usersMap[uin]
+            val user = usersSet[uin]
             if(user != null && pin == user.PIN)
                 return user
             else
@@ -112,23 +117,25 @@ object App { // Entry point da aplicação
      * @return o [User] com o novo PIN se alterado
      *
      */
-    private fun changePin(user: User): User{
-        val key = TUI.getInputWithTextInterface("Change PIN?", "Yes -> #", 5000L)
+    private fun changePin(): Int?{
+        val key = TUI.getInputWithTextInterface("Change PIN?", "Yes -> #", DEFAULT_TIME_SLEEP)
         LCD.clear()
+        val newPin:Int
         if (key == '#'){
             TUI.writeSentence("New PIN:", TUI.Align.Left, 0)
-            val newPin = TUI.readInteger(1, 0, 4, visible = false, missing = true)
+             newPin = TUI.readInteger(1, 0, 4, visible = false, missing = true)
             LCD.clear()
             TUI.writeSentence("Confirm new PIN:", TUI.Align.Left, 0)
             val confirmPin = TUI.readInteger(1,0, 4, visible = false, missing = true)
             LCD.clear()
-            if(newPin == confirmPin && newPin > 0){
+             if(newPin == confirmPin && newPin > 0){
                 TUI.writeSentence("PIN changed.", TUI.Align.Center, 0)
-                return user.copy(PIN = newPin)
-            } else TUI.writeSentence("PIN not changed.", TUI.Align.Left, TOP_LINE)
-            Time.sleep(DEFAULT_TIME_SLEEP)
+                return newPin
+             }
         }
-        return user
+        TUI.writeSentence("PIN not changed.", TUI.Align.Left, TOP_LINE)
+        Time.sleep(DEFAULT_TIME_SLEEP)
+        return null
     }
 
     /**
@@ -147,16 +154,18 @@ object App { // Entry point da aplicação
      * @return o [User] com informações de entrada/saída atualizadas e o novo PIN se alterado
      */
     private fun manageEntry(user: User): User {
-        var userToReturn = user
         LCD.clear()
         TUI.writeSentence("Welcome", TUI.Align.Center, TOP_LINE)
         TUI.writeSentence(user.name, TUI.Align.Center, BOTTOM_LINE)
         val changePinKey = TUI.getInputWithTextInterface()
-        if(changePinKey == '#') userToReturn = changePin(user)
+        val newPin:Int? = if(changePinKey == '#') changePin() else null
         LCD.clear()
-        userToReturn = manageEntryTime(userToReturn)
-        manageDoor()
-        return userToReturn
+        val userWithNewPin:User = if(newPin != null) user.copy(PIN = newPin) else user
+        val userWithUpdatedTime:User = userUpdateEntryTime(userWithNewPin)
+        val exitTime = if(user.entryTime != 0L) Time.getTimeInMillis() else null
+        writeEntryAndExitTimeWithAccumulate(userWithUpdatedTime.accumulatedTime, exitTime, userWithUpdatedTime.entryTime)
+        manageDoor(userWithUpdatedTime.name)
+        return userWithUpdatedTime
     }
 
     fun userUpdateEntryTime(user: User): User {
@@ -168,12 +177,13 @@ object App { // Entry point da aplicação
         }
     }
 
-    fun writeEntryAndExitTimeWithAccumulate(accumulate: Long, exit: Long?=null, entry: Long){
+    fun writeEntryAndExitTimeWithAccumulate(accumulate: Long, exit: Long?, entry: Long){
         val formatter = SimpleDateFormat("HH:mm", Locale.UK)
         val dayOfTheWeek = dateTime.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.UK)
         val exitTimeText = if (exit != null) "$dayOfTheWeek, " + formatter.format(exit) else  "???, ??:??"
         val accumulatedTimeText = msToTimeFormat(accumulate)
         val entryTimeText = "$dayOfTheWeek, " + formatter.format(entry)
+
         TUI.writeSentence(entryTimeText, TUI.Align.Left, TOP_LINE)
         TUI.writeSentence(exitTimeText, TUI.Align.Left, BOTTOM_LINE)
         TUI.writeSentence(accumulatedTimeText, TUI.Align.Right, if(exit == null) TOP_LINE else BOTTOM_LINE)
@@ -227,4 +237,8 @@ object App { // Entry point da aplicação
         val currentHours = totalHours %24
         return "$currentHours:$currentMinutes"
     }
+}
+
+fun main(){
+    App.run()
 }
