@@ -20,11 +20,11 @@ object App { // Entry point da aplicação
     /**
      * Entry point
      */
-    fun run(){
+    fun run() {
         val hardCodedUser = User(0, 0, "Teodosie Cabral", 0, 0)
         usersSet[hardCodedUser.UIN] = hardCodedUser
         initializeObjects()
-        while(true) {
+        while (true) {
             var user: User?
             do {
                 updateDateTime(0)
@@ -86,7 +86,7 @@ object App { // Entry point da aplicação
      *
      * @return O [User] identificado por UIN no [usersSet]
      */
-    private fun readEntry():User?{
+    private fun readEntry(): User? {
         TUI.clearLine(1)
         val uinText = "UIN:"
         TUI.writeSentence(uinText, TUI.Align.Left, 1)
@@ -95,7 +95,7 @@ object App { // Entry point da aplicação
             return null
         else{
             TUI.clearLine(1)
-            var pin:Int
+            var pin: Int
             val textPin = "PIN:"
             do{
                 TUI.writeSentence(textPin, TUI.Align.Left, 1)
@@ -214,7 +214,7 @@ object App { // Entry point da aplicação
      * [Door]
      * [TUI]
      */
-   private fun initializeObjects(){
+    private fun initializeObjects() {
         HAL.init()
         LCD.init()
         Door.init()

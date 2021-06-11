@@ -1,0 +1,11 @@
+@startuml
+
+object FileAcess
+object Users
+object Logs
+
+FileAcess <-- Users:file
+FileAcess -->Users:info:array[string]
+
+
+@enduml

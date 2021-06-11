@@ -59,3 +59,9 @@ object HAL { // Virtualiza o acesso ao sistema UsbPort
         writeValueInOutput(outputBits)
     }
 }
+
+fun main(){
+    while (true){
+        println(HAL.isBit(1))
+    }
+}
