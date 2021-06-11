@@ -34,7 +34,4 @@ object KeyReceiver {
     }
 }
 
-fun main() {
-    KeyReceiver.init()
-    println(KeyReceiver.rcv())
-}
+
