@@ -158,7 +158,7 @@ object App { // Entry point da aplicação
         TUI.writeSentence("Welcome", TUI.Align.Center, TOP_LINE)
         TUI.writeSentence(user.name, TUI.Align.Center, BOTTOM_LINE)
         val changePinKey = TUI.getInputWithTextInterface()
-        val newPin:Int? = if(changePinKey == '#') changePin() else null
+        val newPin: Int? = if (changePinKey == '#') changePin() else null
         LCD.clear()
         val userWithNewPin:User = if(newPin != null) user.copy(PIN = newPin) else user
         val userWithUpdatedTime:User = userUpdateEntryTime(userWithNewPin)

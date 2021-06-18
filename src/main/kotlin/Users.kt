@@ -51,7 +51,7 @@ object Users {
             val pin = readLine()!!.trim().toInt()
             val pinString = String.format("%04d", pin)
             printLine()
-            print("Digite o nome do utilizador: ") // Só pode ter 16 caracteres TODO
+            print("Digite o nome do utilizador: ") // Só pode ter 16 caracteres
             val name:String = readLine()!!.trim().capitalize()
             printLine()
             val accumulatedTime = 0
