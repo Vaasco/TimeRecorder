@@ -92,6 +92,7 @@ App <-- TUI:<<use>>
 App --> Users:<<use>>
 App --> User:"<<use>>"
 App --> Logs:<<use>>
+App -> Door:<<use>>
 KBD -> KeyReceiver:<<use>>
 KeyReceiver -> HAL:<<use>>
 TUI --> LCD:<<use>>

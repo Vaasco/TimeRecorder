@@ -1,38 +1,50 @@
-import java.io.File
 import java.util.*
-/*
+
 object Users {
-    //data class User(val UIN:Int, var PIN:Int, val name:String, val accumulatedTime:Int, val entryDate: String)
-    private var uinsRemovedQueue = PriorityQueue<Int>()
-    private val usersFile: File = File("C:\\ISEL\\LIC\\TimeRecorder\\TextFiles\\Users.txt")
+    private val uinsRemovedQueue = PriorityQueue<Int>()
 
-    fun init(){
-        loadFiles()
+    data class User(val UIN: Int, val PIN: Int, val name: String, val accumulatedTime: Long, val entryTime: Long)
+
+    private val usersMap = HashMap<Int, User>()
+
+    operator fun set(uin:Int, user: User): User? {
+        if (usersMap.size >= 1000) return null
+        usersMap[uin] = user
+        return user
     }
 
-    private fun loadFiles() { // Carrega os ficheiros de texto UsersFile e uinsRemovedNotUsed para as respectivas listas
-        val usersString = usersFile.readLines() // “UIN;PIN;NAME;ACCUMULATED_TIME;ENTRY_DATE”
-        for (string in usersString){
-            val usersInfo = string.split(';') // [UIN, PIN, NAME, ACCUMULATED_TIME, ENTRY_DATE]
-            val uin = usersInfo[0].toInt()
-            val pin = usersInfo[1].toInt()
-            val name = usersInfo[2]
-            val accumulatedTime = usersInfo[3].toInt()
-            val entryDate = usersInfo[4].toLong()
-            val userToAdd = User(uin, pin, name, accumulatedTime.toLong(), entryDate)
-            usersMap[uin] = userToAdd
+
+    fun update(user: User): Boolean {
+        if (usersMap[user.UIN] != null) {
+            usersMap[user.UIN] = user
+            return true
         }
-        val uinsRemovedFile = File("C:\\ISEL\\LIC\\TimeRecorder\\TextFiles\\uinsRemovedToday.txt")
-        val scanner = Scanner(uinsRemovedFile)
-        fun addUinsToQueue(){
-            while (scanner.hasNextLine())
-                uinsRemovedQueue.offer(scanner.nextLine().toInt())
-        }
-        if(uinsRemovedFile.readLines().isNotEmpty())
-            addUinsToQueue()
+        return false
     }
 
-    fun add(){
+    fun remove(user: User): User? {
+        val remove = usersMap.remove(user.UIN)
+        return remove
+    }
+
+    fun load(userText: String) {
+        val userArray = userText.split(';') // ["0", "1256", "Vasco", "0", "0"]
+        val userUin = userArray[0].toInt()
+        val userPin = userArray[1].toInt()
+        val userName = userArray[3].toLong()
+        val userAccumulatedTime = userArray[4].toLong()
+        val user = User(userUin, userPin, userArray[2], userName, userAccumulatedTime)
+        set(userUin, user)
+    }
+    // 0;1256;Vasco;0;0
+    // UIN;PIN;NAME;ACCUMULATED_TIME;ENTRY_TIME
+
+    operator fun get(uin: Int): User? {
+        return usersMap[uin]
+    }
+}
+/*
+fun add(){
         fun printLine(){
             println("----------------------------------------------------------")
         }
@@ -88,7 +100,5 @@ object Users {
             println("Utilizador removido com sucesso")
         }
     }
-}
+
 */
-
-

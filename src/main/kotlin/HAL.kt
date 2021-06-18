@@ -1,5 +1,9 @@
 import isel.leic.UsbPort
 
+operator fun Int.not():Int{ //
+    return this.inv()
+}
+
 object HAL { // Virtualiza o acesso ao sistema UsbPort
     /**
      * Foi adicionada a seguinte variável
@@ -8,10 +12,10 @@ object HAL { // Virtualiza o acesso ao sistema UsbPort
      */
     private var outputBits = 0
 
-    private fun usbPortIn():Int = UsbPort.`in`().inv()
+    private fun usbPortIn():Int = !UsbPort.`in`()
 
     // Escreve o valor de value nos bits de output do UsbPort
-    private fun writeValueInOutput(value:Int) = UsbPort.out(value.inv())
+    private fun writeValueInOutput(value:Int) = UsbPort.out(!value)
 
     // Inicia a classe
     fun init() = writeValueInOutput(0)
@@ -39,7 +43,7 @@ object HAL { // Virtualiza o acesso ao sistema UsbPort
 
     // Escreve nos bits representados por mask o valor de value
     fun writeBits(mask: Int, value: Int){
-        outputBits = outputBits and mask.inv()
+        outputBits = outputBits and !mask
         val out = mask and value
         outputBits = outputBits or out
         writeValueInOutput(outputBits)
@@ -55,7 +59,7 @@ object HAL { // Virtualiza o acesso ao sistema UsbPort
 
     // Coloca os bits representados por mask no valor lógico ‘0’
     fun clearBits(mask: Int){
-        outputBits = outputBits.and(mask.inv())
+        outputBits = outputBits.and(!mask)
         writeValueInOutput(outputBits)
     }
 }

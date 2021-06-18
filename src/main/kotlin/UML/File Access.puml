@@ -31,7 +31,7 @@ class Log{
 
 
 FileAcess <-- Users:file
-FileAcess -->Users:usersInfo:String[]
+FileAcess -->Users:usersInfo:String
 FileAcess <-- Logs:file
 Users *-- User:HashMap
 Logs *-- Log
