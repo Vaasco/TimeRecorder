@@ -3,6 +3,9 @@ import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.TextStyle
 import java.util.*
+import kotlin.collections.HashMap
+import kotlin.collections.HashSet
+import kotlin.system.exitProcess
 
 const val BOTTOM_LINE = 1
 const val TOP_LINE = 0
@@ -13,11 +16,8 @@ const val DEBUG = false
 
 
 object App { // Entry point da aplicação
-
     // Data e hora atual
     private var dateTime: LocalDateTime = LocalDateTime.now()
-
-    fun getTime() = dateTime
 
     /**
      * Entry point-
@@ -27,7 +27,7 @@ object App { // Entry point da aplicação
         while (true) {
             var user: Users.User?
             do {
-                if(M.checkMaintenance())
+                if(M.checkMaintenance()) {
                     TUI.clear()
                     TUI.writeSentence("Out of service", TUI.Align.Center, 0)
                     if(M.enterMaintenace()){
@@ -170,7 +170,7 @@ object App { // Entry point da aplicação
         val exitTime:Long
         if (user.entryTime != 0L) {
             exitTime = Time.getTimeInMillis()
-            writeEntryAndExitTimeWithAccumulate(userWithUpdatedTime.accumulatedTime, exitTime, userWithUpdatedTime.entryTime)
+            writeEntryAndExitTimeWithAccumulate(userWithUpdatedTime.accumulatedTime, exitTime, user.entryTime)
             Logs.addLog(exitTime, inNOut = false, userWithUpdatedTime.UIN, userWithUpdatedTime.name)
 
         }else{
@@ -256,4 +256,5 @@ object App { // Entry point da aplicação
 
 fun main() {
     App.run()
+    exitProcess(0)
 }

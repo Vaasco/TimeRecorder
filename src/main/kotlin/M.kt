@@ -88,13 +88,13 @@ object M {
         printLine()
         println("           Manutenção")
         printLine()
-        println("Comandos: add, remove, exit, help")
+        println("Comandos: add, remove, shutdown, help")
         val commands = arrayOf("add", "remove", "help", "shutdown")
         while (true) {
             var command: String? = ""
             while (command != null) {
                 print(">")
-                command = readLine()
+                command = readLine()?.trim()
                 if (command !in commands) println("Comando inexistente")
                 else break
             }
@@ -104,7 +104,7 @@ object M {
                 "help" -> printHelp()
                 else -> return true
             }
-            if(HAL.isBit(MANUT_MASK)) return false
+            if(!HAL.isBit(MANUT_MASK)) return false
         }
     }
 }

@@ -58,8 +58,12 @@ object Users {
         return usersMap[uin]
     }
 
-    fun writeUsers(users: List<String>){
-        FileAcess.writeUsers(users)
+    fun writeUsers() {
+        val users: ArrayList<String> = ArrayList()
+        usersMap.forEach {
+            users.add(it.value.toText())
+        }
+        FileAcess.writeUsers(users, uinsRemovedQueue)
     }
 }
 

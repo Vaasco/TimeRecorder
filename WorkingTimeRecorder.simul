@@ -43,7 +43,7 @@ UsbPort.O5 -> lcd.e
 UsbPort.O6  -> dc.wr
 
 # V3 | V2 | V1 | V0 | OC
-#UsbPort.O[0-3] -> dc.I[1-4]
+#UsbPort.O[0-4] -> dc.I[0-4]
 
 # OC | V3 | V2 | V1 | V0
 UsbPort.O[0-3] -> dc.I[1-4]
@@ -65,4 +65,3 @@ door.Pdetect -> dc.Psensor
 # Manut
 # --------------------------------------
 m.out -> UsbPort.I7
-
