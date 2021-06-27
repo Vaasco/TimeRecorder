@@ -31,9 +31,9 @@ object KBD { // Ler teclas. Métodos retornam ‘0’..’9’,’#’,’*’ o
     }
 
     private fun getKeySerial():Char{
-        val keyCode = KeyReceiver.rcv()
+        val keyCode = SerialReceiver.rcv()
         return if (HAL.isBit(D_VAL) && keyCode in array.indices)
-            array[KeyReceiver.rcv()]
+            array[SerialReceiver.rcv()]
         else NONE
     }
 

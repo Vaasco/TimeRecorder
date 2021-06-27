@@ -1,6 +1,6 @@
 import isel.leic.utils.Time
 
-object KeyReceiver {
+object SerialReceiver {
 
     private const val TXCLK_MASK = 0b10000000
     private const val TXD_MASK = 0b00000001
@@ -47,7 +47,7 @@ object KeyReceiver {
 
 fun main() {
     HAL.init()
-    KeyReceiver.init()
-    println(KeyReceiver.rcv())
+    SerialReceiver.init()
+    println(SerialReceiver.rcv())
 }
 

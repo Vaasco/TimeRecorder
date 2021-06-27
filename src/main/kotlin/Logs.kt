@@ -24,6 +24,9 @@ object Logs {
         } else indice.add(log)
     }
 
+    fun writeLogs(users: List<String>){
+        FileAcess.writeLogs(users)
+    }
     //18:30;[>];0;Teo
     /*fun load(logsText: String) {
         val logArray = logsText.split(';')

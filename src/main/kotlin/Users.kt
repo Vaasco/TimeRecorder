@@ -58,10 +58,9 @@ object Users {
         return usersMap[uin]
     }
 
-    // TODO: ACABAR UML
-    //TODO: Fazer função no USERS e LOGS para usar na APP para quando o programa desligar ser escrito no FILE ACESS os USERS e LOGS
-    // TODO TESTAR TUDO NO USBPORT DO LOGIZAO
-
+    fun writeUsers(users: List<String>){
+        FileAcess.writeUsers(users)
+    }
 }
 
 

@@ -8,6 +8,19 @@
 }
 
 class App{
+    -dateTime:LocalDateTime
+    +run()
+    -updateDateTime(line:Int)
+    -writeDate(line:Int, alignment: TUI.Align)
+    -writeHour(line:Int, alignment:TUI.Align)
+    -readEntry():Users.User?
+    -changePin():Int?
+    -manageEntry(user: Users.User):Users.User
+    +userUpdateEntryTime(user:Users.User):User.User
+    +writeEntryAndExitTimeWithAccumulate(accumulate: Long, exit: Long?, entry: Long)
+    +manageDoor(userName: String)
+    -initializeObjects()
+    -msToTimeFormat(time: Long):String
 }
 
 class TUI{
@@ -31,6 +44,7 @@ class LCD{
 
 class KBD{
     -NONE:Char
+    -SERIAL:Boolean
     -array:Char[]
     -getKeyParallel():Char
     -getKeySerial():Char
@@ -58,18 +72,24 @@ class Door{
 }
 
 +class Log{
-    toText()
+    -toText()
 }
 
 class Logs{
-    addLog()
-    TODO(writeLogs)
+    +addLog()
+    +writeLogs(users:List<String>))
 }
 class Users{
     -usersMap:HashMap<Int, User>
-    +addOrReplaceUser(:User)
-    +removeUser(:User)
-    -mapToFileString():String[]
+    +User.toText():String
+    +add(name:String,PIN: Int): User?
+    +update(user: User): Boolean
+    +remove(user: User): User?
+    -load(userText: String)
+    +loadUsers(users:List<String>))
+    +get(uin: Int):User?
+    +writeUsers(users:List<String>))
+
 }
 
 +class User{
@@ -82,16 +102,17 @@ class Users{
 }
 
 class M{
-    add()
-    remove()
-    checkManut()
-    enterMaintenance()
+    +add()
+    +remove()
+    +checkMaintenance()
+    +enterMaintenance()
 }
 
-class KeyReceiver{
-    sendTXClkPulse()
-    handleError()
-    rcv()
+class SerialReceiver{
+    +init()
+    -sendTXClkPulse()
+    -handleError():Int
+    +rcv():Int
 }
 
 KBD -> HAL:<<use>>
@@ -107,12 +128,13 @@ App --> Users:<<use>>
 App --> User:"<<use>>"
 App --> Logs:<<use>>
 App -> Door:<<use>>
-KBD -> KeyReceiver:<<use>>
-KeyReceiver -> HAL:<<use>>
+KBD -> SerialReceiver:<<use>>
+SerialReceiver -> HAL:<<use>>
 TUI --> LCD:<<use>>
 TUI -> KBD:<<use>>
 HAL <- Door:<<use>>
 Logs +-- Log
 M <- App:<<use>>
 HAL -> M:<<use>>
+
 @enduml

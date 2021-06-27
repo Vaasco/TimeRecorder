@@ -20,7 +20,7 @@ object App { // Entry point da aplicação
     fun getTime() = dateTime
 
     /**
-     * Entry point
+     * Entry point-
      */
     fun run() {
         initializeObjects()
@@ -30,7 +30,10 @@ object App { // Entry point da aplicação
                 if(M.checkMaintenance())
                     TUI.clear()
                     TUI.writeSentence("Out of service", TUI.Align.Center, 0)
-                    M.enterMaintenace()
+                    if(M.enterMaintenace()){
+                        Users.writeUsers()
+                        Logs.writeLogs()
+                    }
                 updateDateTime(0)
                 user = readEntry()
             } while (user == null)
