@@ -25,14 +25,14 @@ object Logs {
     }
 
     //18:30;[>];0;Teo
-    fun load(logsText: String) {
+    /*fun load(logsText: String) {
         val logArray = logsText.split(';')
         val logRegistDate = logArray[0].toLong()
         val loginNout = logArray[1]
         val logUIN = logArray[2].toInt()
         val logNAME = logArray[3]
         addLog(logRegistDate, loginNout == "[>]", logUIN, logNAME)
-    }
+    }*/
 }
 
 fun main() {

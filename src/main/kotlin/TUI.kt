@@ -35,6 +35,9 @@ object TUI {
         writeSentence(" ".repeat(16), Align.Left, line)
     }
 
+    /**
+     * Limpa ambas as linhas do [LCD]
+     */
     fun clear(){
         LCD.clear()
     }

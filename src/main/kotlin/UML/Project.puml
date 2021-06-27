@@ -58,8 +58,13 @@ class Door{
 }
 
 +class Log{
+    toText()
 }
 
+class Logs{
+    addLog()
+    TODO(writeLogs)
+}
 class Users{
     -usersMap:HashMap<Int, User>
     +addOrReplaceUser(:User)
@@ -76,8 +81,17 @@ class Users{
     +toFileString()
 }
 
-class KeyReceiver{
+class M{
+    add()
+    remove()
+    checkManut()
+    enterMaintenance()
+}
 
+class KeyReceiver{
+    sendTXClkPulse()
+    handleError()
+    rcv()
 }
 
 KBD -> HAL:<<use>>
@@ -99,5 +113,6 @@ TUI --> LCD:<<use>>
 TUI -> KBD:<<use>>
 HAL <- Door:<<use>>
 Logs +-- Log
-
+M <- App:<<use>>
+HAL -> M:<<use>>
 @enduml

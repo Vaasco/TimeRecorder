@@ -23,7 +23,7 @@ object KBD { // Ler teclas. Métodos retornam ‘0’..’9’,’#’,’*’ o
         val value = HAL.readBits(KEY_MASK)
         return if (HAL.isBit(D_VAL) && value in array.indices){
             HAL.setBits(ACK_MASK)
-            Time.sleep(10)
+            Time.sleep(50)
             HAL.clearBits(ACK_MASK)
             array[value]
         } else
@@ -31,7 +31,10 @@ object KBD { // Ler teclas. Métodos retornam ‘0’..’9’,’#’,’*’ o
     }
 
     private fun getKeySerial():Char{
-        return if (HAL.isBit(ACK_MASK)) array[KeyReceiver.rcv()] else NONE
+        val keyCode = KeyReceiver.rcv()
+        return if (HAL.isBit(D_VAL) && keyCode in array.indices)
+            array[KeyReceiver.rcv()]
+        else NONE
     }
 
     // Retorna quando a tecla for premida ou NONE após decorrido ‘timeout’ milisegundos.
@@ -40,10 +43,15 @@ object KBD { // Ler teclas. Métodos retornam ‘0’..’9’,’#’,’*’ o
         var currentTime = 0L
         var key = NONE
         while(currentTime - msBefore < timeout && key == NONE){
-            key = getKeyParalel()
+            key = if(SERIAL) getKeySerial() else getKeyParalel()
             currentTime = System.currentTimeMillis()
         }
         return key
     }
 
+}
+
+fun main() {
+    HAL.init()
+    println(KBD.waitKey(5000L))
 }

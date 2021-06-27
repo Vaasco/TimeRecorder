@@ -9,28 +9,22 @@ object FileAcess {
 
     fun init() {
         loadUsers()
-        loadLogs()
     }
 
-    private fun loadLogs() {
-        val reader = Scanner(logFile)
-        while (reader.hasNextLine()) {
-            val logString = reader.next()
-            Logs.load(logString)
-        }
-    }
 
     private fun loadUsers() {
-        val reader = Scanner(usersFile)
-        while (reader.hasNextLine()) {
-            val userString = reader.next()
-            Users.load(userString)
-        }
+         Users.loadUsers(usersFile.readLines())
     }
 
+    fun writeLogs(logs:List<String>){
+        val writer = PrintWriter(logFile.path)
+        for(log in logs) writer.println(log)
+        writer.close()
+    }
 
-}
-
-fun main() {
-
+    fun writeUsers(users:List<String>){
+        val writer = PrintWriter(usersFile.path)
+        for(user in users) writer.println(user)
+        writer.close()
+    }
 }

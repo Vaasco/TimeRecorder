@@ -7,6 +7,9 @@ import java.util.*
 const val BOTTOM_LINE = 1
 const val TOP_LINE = 0
 const val DEFAULT_TIME_SLEEP = 5000L
+const val DOOR_OPEN_SPEED = 6
+const val DOOR_CLOSE_SPEED = 2
+const val DEBUG = false
 
 
 object App { // Entry point da aplicação
@@ -14,23 +17,26 @@ object App { // Entry point da aplicação
     // Data e hora atual
     private var dateTime: LocalDateTime = LocalDateTime.now()
 
+    fun getTime() = dateTime
+
     /**
      * Entry point
      */
     fun run() {
-        val hardCodedUser = Users.User(0, 0, "Teodosie Cabral", 0, 0)
-        Users[hardCodedUser.UIN] = hardCodedUser
         initializeObjects()
         while (true) {
             var user: Users.User?
             do {
+                if(M.checkMaintenance())
+                    TUI.clear()
+                    TUI.writeSentence("Out of service", TUI.Align.Center, 0)
+                    M.enterMaintenace()
                 updateDateTime(0)
                 user = readEntry()
             } while (user == null)
             user = manageEntry(user)
             Users.update(user)
         }
-
     }
 
     /**
@@ -88,7 +94,7 @@ object App { // Entry point da aplicação
         TUI.clearLine(1)
         val uinText = "UIN:"
         TUI.writeSentence(uinText, TUI.Align.Left, 1)
-        val uin = TUI.readInteger(1, uinText.length, 3, visible = true, missing = true)
+        val uin = if (DEBUG) 0 else TUI.readInteger(1, uinText.length, 3, visible = true, missing = true)
         if (uin < 0) // < 0 significa que ocorreu um erro, ou que o utilizador se enganou
             return null
         else {
@@ -100,7 +106,7 @@ object App { // Entry point da aplicação
                 pin = TUI.readInteger(1, textPin.length, 4, visible = false, missing = true)
             } while (pin == -2)
             val user = Users[uin]
-            if (user != null && pin == user.PIN)
+            if (user != null && (DEBUG || pin == user.PIN))
                 return user
             else
                 return null
@@ -108,24 +114,22 @@ object App { // Entry point da aplicação
     }
 
     /**
-     * Faz a alteração do PIN de um utilizador
+     * Faz a alteração do PIN de um utilizador.
      *
-     * @param user o [User] que deseja alterar o PIN
-     *
-     * @return o [User] com o novo PIN se alterado
+     * @return o novo PIN ou null se não alterado.
      *
      */
     private fun changePin(): Int? {
         val key = TUI.getInputWithTextInterface("Change PIN?", "Yes -> #", DEFAULT_TIME_SLEEP)
-        LCD.clear()
+        TUI.clear()
         val newPin: Int
         if (key == '#') {
             TUI.writeSentence("New PIN:", TUI.Align.Left, 0)
             newPin = TUI.readInteger(1, 0, 4, visible = false, missing = true)
-            LCD.clear()
+            TUI.clear()
             TUI.writeSentence("Confirm new PIN:", TUI.Align.Left, 0)
             val confirmPin = TUI.readInteger(1, 0, 4, visible = false, missing = true)
-            LCD.clear()
+            TUI.clear()
             if (newPin == confirmPin && newPin > 0) {
                 TUI.writeSentence("PIN changed.", TUI.Align.Center, 0)
                 return newPin
@@ -152,12 +156,12 @@ object App { // Entry point da aplicação
      * @return o [Users.User] com informações de entrada/saída atualizadas e o novo PIN se alterado
      */
     private fun manageEntry(user: Users.User): Users.User {
-        LCD.clear()
+        TUI.clear()
         TUI.writeSentence("Welcome", TUI.Align.Center, TOP_LINE)
         TUI.writeSentence(user.name, TUI.Align.Center, BOTTOM_LINE)
         val changePinKey = TUI.getInputWithTextInterface()
         val newPin: Int? = if (changePinKey == '#') changePin() else null
-        LCD.clear()
+        TUI.clear()
         val userWithNewPin: Users.User = if (newPin != null) user.copy(PIN = newPin) else user
         val userWithUpdatedTime: Users.User = userUpdateEntryTime(userWithNewPin)
         val exitTime:Long
@@ -195,7 +199,7 @@ object App { // Entry point da aplicação
         TUI.writeSentence(exitTimeText, TUI.Align.Left, BOTTOM_LINE)
         TUI.writeSentence(accumulatedTimeText, TUI.Align.Right, if (exit == null) TOP_LINE else BOTTOM_LINE)
         Time.sleep(DEFAULT_TIME_SLEEP)
-        LCD.clear()
+        TUI.clear()
     }
 
     /**
@@ -204,13 +208,13 @@ object App { // Entry point da aplicação
     fun manageDoor(userName: String) {
         TUI.writeSentence("Door opening", TUI.Align.Center, TOP_LINE)
         TUI.writeSentence(userName, TUI.Align.Center, BOTTOM_LINE)
-        Door.open(6)
+        Door.open(DOOR_OPEN_SPEED)
         TUI.clearLine(0)
         TUI.writeSentence("Door opened", TUI.Align.Center, TOP_LINE)
         Time.sleep(DEFAULT_TIME_SLEEP)
         TUI.writeSentence("Door closing", TUI.Align.Center, TOP_LINE)
-        Door.close(2)
-        LCD.clear()
+        Door.close(DOOR_CLOSE_SPEED)
+        TUI.clear()
     }
 
     /**
@@ -225,6 +229,7 @@ object App { // Entry point da aplicação
         HAL.init()
         LCD.init()
         Door.init()
+        FileAcess.init()
     }
 
     /**
