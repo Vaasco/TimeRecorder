@@ -80,9 +80,9 @@ object M {
         }
         fun printHelp(){
             printLine()
-            println("add        :Adicionar utilizador")
-            println("\nremove   :Remover utilizador")
-            println("\nshutdown :Saír do modo manutenção")
+            println("add      : Adicionar utilizador")
+            println("\nremove   : Remover utilizador")
+            println("\nshutdown : Desligar o sistema")
             printLine()
         }
         printLine()
@@ -92,11 +92,12 @@ object M {
         val commands = arrayOf("add", "remove", "help", "shutdown")
         while (true) {
             var command: String? = ""
-            while (command != null) {
+            while (true) {
                 print(">")
                 command = readLine()?.trim()
                 if (command !in commands) println("Comando inexistente")
                 else break
+                if(!HAL.isBit(MANUT_MASK)) return false
             }
             when (command) {
                 "add" -> add()
@@ -104,7 +105,6 @@ object M {
                 "help" -> printHelp()
                 else -> return true
             }
-            if(!HAL.isBit(MANUT_MASK)) return false
         }
     }
 }

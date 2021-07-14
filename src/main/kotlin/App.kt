@@ -30,10 +30,13 @@ object App { // Entry point da aplicação
                 if(M.checkMaintenance()) {
                     TUI.clear()
                     TUI.writeSentence("Out of service", TUI.Align.Center, 0)
-                    if(M.enterMaintenace()){
+                    if (M.enterMaintenace()) {
                         Users.writeUsers()
                         Logs.writeLogs()
+                        return
                     }
+                    TUI.clear()
+                }
                 updateDateTime(0)
                 user = readEntry()
             } while (user == null)
@@ -232,6 +235,7 @@ object App { // Entry point da aplicação
         HAL.init()
         LCD.init()
         Door.init()
+        SerialReceiver.init()
         FileAcess.init()
     }
 
