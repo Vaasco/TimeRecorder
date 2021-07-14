@@ -1,10 +1,10 @@
+@file:Suppress("SameParameterValue")
+
 import isel.leic.utils.Time
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.TextStyle
 import java.util.*
-import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 import kotlin.system.exitProcess
 
 const val BOTTOM_LINE = 1
@@ -112,10 +112,10 @@ object App { // Entry point da aplicação
                 pin = TUI.readInteger(1, textPin.length, 4, visible = false, missing = true)
             } while (pin == -2)
             val user = Users[uin]
-            if (user != null && (DEBUG || pin == user.PIN))
-                return user
+            return if (user != null && (DEBUG || pin == user.PIN))
+                user
             else
-                return null
+                null
         }
     }
 
@@ -185,7 +185,7 @@ object App { // Entry point da aplicação
         return userWithUpdatedTime
     }
 
-    fun userUpdateEntryTime(user: Users.User): Users.User {
+    private fun userUpdateEntryTime(user: Users.User): Users.User {
         return if (user.entryTime == 0L) {
             user.copy(entryTime = Time.getTimeInMillis())
         } else {
@@ -194,7 +194,7 @@ object App { // Entry point da aplicação
         }
     }
 
-    fun writeEntryAndExitTimeWithAccumulate(accumulate: Long, exit: Long?=null, entry: Long) {
+    private fun writeEntryAndExitTimeWithAccumulate(accumulate: Long, exit: Long?=null, entry: Long) {
         val formatter = SimpleDateFormat("HH:mm", Locale.UK)
         val dayOfTheWeek = dateTime.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.UK)
         val exitTimeText = if (exit != null) "$dayOfTheWeek, " + formatter.format(exit) else "???, ??:??"
@@ -211,7 +211,7 @@ object App { // Entry point da aplicação
     /**
      * Faz a gestão da abertura e fecho da porta à entrada de um utilizador
      */
-    fun manageDoor(userName: String) {
+    private fun manageDoor(userName: String) {
         TUI.writeSentence("Door opening", TUI.Align.Center, TOP_LINE)
         TUI.writeSentence(userName, TUI.Align.Center, BOTTOM_LINE)
         Door.open(DOOR_OPEN_SPEED)
