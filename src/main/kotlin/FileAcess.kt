@@ -56,8 +56,8 @@ object FileAcess {
         val list = LinkedList<String>()
 
         BufferedReader(InputStreamReader(FileInputStream(pathName))).use { s ->
-            val lenght = s.readLine().toInt()
-            repeat(lenght) {
+            val length = s.readLine().toInt()
+            repeat(length) {
                 list.add(s.readLine())
             }
         }

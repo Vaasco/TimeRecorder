@@ -1,6 +1,7 @@
 @file:Suppress("SameParameterValue")
 
 import isel.leic.utils.Time
+import java.lang.NumberFormatException
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.TextStyle
@@ -18,6 +19,7 @@ const val DEBUG = false
 object App { // Entry point da aplicação
     // Data e hora atual
     private var dateTime: LocalDateTime = LocalDateTime.now()
+    private val manutCommands = getComands()
 
     /**
      * Entry point-
@@ -27,14 +29,10 @@ object App { // Entry point da aplicação
         while (true) {
             var user: Users.User?
             do {
-                if(M.checkMaintenance()) {
+                if (M.checkMaintenance()) {
                     TUI.clear()
                     TUI.writeSentence("Out of service", TUI.Align.Center, 0)
-                    if (M.enterMaintenace()) {
-                        Users.writeUsers()
-                        Logs.writeLogs()
-                        return
-                    }
+                    enterMaintenace()
                     TUI.clear()
                 }
                 updateDateTime(0)
@@ -170,14 +168,17 @@ object App { // Entry point da aplicação
         TUI.clear()
         val userWithNewPin: Users.User = if (newPin != null) user.copy(PIN = newPin) else user
         val userWithUpdatedTime: Users.User = userUpdateEntryTime(userWithNewPin)
-        val exitTime:Long
+        val exitTime: Long
         if (user.entryTime != 0L) {
             exitTime = Time.getTimeInMillis()
             writeEntryAndExitTimeWithAccumulate(userWithUpdatedTime.accumulatedTime, exitTime, user.entryTime)
             Logs.addLog(exitTime, inNOut = false, userWithUpdatedTime.UIN, userWithUpdatedTime.name)
 
-        }else{
-            writeEntryAndExitTimeWithAccumulate(userWithUpdatedTime.accumulatedTime, entry=userWithUpdatedTime.entryTime)
+        } else {
+            writeEntryAndExitTimeWithAccumulate(
+                userWithUpdatedTime.accumulatedTime,
+                entry = userWithUpdatedTime.entryTime
+            )
             Logs.addLog(userWithUpdatedTime.entryTime, inNOut = true, userWithUpdatedTime.UIN, userWithUpdatedTime.name)
         }
         manageDoor(userWithUpdatedTime.name)
@@ -194,12 +195,11 @@ object App { // Entry point da aplicação
         }
     }
 
-    private fun writeEntryAndExitTimeWithAccumulate(accumulate: Long, exit: Long?=null, entry: Long) {
-        val formatter = SimpleDateFormat("HH:mm", Locale.UK)
+    private fun writeEntryAndExitTimeWithAccumulate(accumulate: Long, exit: Long? = null, entry: Long) {
         val dayOfTheWeek = dateTime.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.UK)
-        val exitTimeText = if (exit != null) "$dayOfTheWeek, " + formatter.format(exit) else "???, ??:??"
+        val exitTimeText = if (exit != null) "$dayOfTheWeek, " + format(exit) else "???, ??:??"
         val accumulatedTimeText = msToTimeFormat(accumulate)
-        val entryTimeText = "$dayOfTheWeek, " + formatter.format(entry)
+        val entryTimeText = "$dayOfTheWeek, " + format(entry)
 
         TUI.writeSentence(entryTimeText, TUI.Align.Left, TOP_LINE)
         TUI.writeSentence(exitTimeText, TUI.Align.Left, BOTTOM_LINE)
@@ -229,7 +229,8 @@ object App { // Entry point da aplicação
      * [HAL]
      * [LCD]
      * [Door]
-     * [TUI]
+     * [SerialReceiver]
+     * [FileAcess]
      */
     private fun initializeObjects() {
         HAL.init()
@@ -237,6 +238,14 @@ object App { // Entry point da aplicação
         Door.init()
         SerialReceiver.init()
         FileAcess.init()
+    }
+
+    /**
+     * Formats miliseconds to local time string format
+     */
+    private fun format(time: Long): String {
+        val formatter = SimpleDateFormat("HH:mm", Locale.UK)
+        return formatter.format(time)
     }
 
     /**
@@ -256,9 +265,134 @@ object App { // Entry point da aplicação
         val currentHours = totalHours % 24
         return "$currentHours:$currentMinutes"
     }
+
+    // ------------------------------- Entry Point Manutenção ----------------------------------
+
+    private fun add() {
+        fun retrievePin(): Int {
+            while (true) {
+                print("Digite o PIN do utilizador (4 Dígitos): ")
+                try {
+                    val pinString = readLine()!!.trim()
+                    val pin = pinString.toInt()
+                    if (pinString.length == 4) return pin
+                    println("PIN INVÁLIDO.")
+                } catch (e: NumberFormatException) {
+                    println("PIN INVÁLIDO.")
+                }
+            }
+        }
+
+        fun printLine() {
+            println("----------------------------------------------------------")
+        }
+        printLine()
+        var name: String?
+        do {
+            print("Digite o nome do utilizador: ") // Só pode ter 16 caracteres
+            name = readLine()?.trim()?.capitalize()
+        } while (name == null || name.length > 16)
+
+        printLine()
+        val pin: Int = retrievePin()
+        val pinString = String.format("%04d", pin)
+        printLine()
+        val newUser = Users.add(name, PIN = pin)
+        if (newUser == null) {
+            println("Máximo de utilizadores atingido.")
+            return
+        }
+        val uinString = String.format("%03d", newUser.UIN)
+        fun printUserInfo() {
+            println("O utilizador foi registado com sucesso e tem os seguintes dados:")
+            println("       Nome: ${newUser.name}")
+            println("       Número identificador: $uinString")
+            println("       Código de acesso: $pinString")
+            println("       Horas Acumuladas: ${newUser.accumulatedTime}")
+            printLine()
+        }
+        printUserInfo()
+    }
+
+
+    private fun remove() {
+        print("Digite o UIN do utilizador que quer remover:")
+        val uin = readLine()!!.trim().toInt()
+        val user = Users[uin]
+        if (user == null) {
+            println("Utilizador não existe.")
+            return
+        }
+        val name = user.name
+        var answer: String
+        do {
+            print("Confirma a remoção do utilizador ${String.format("%03d", uin)} $name?[Y/N]: ")
+            answer = readLine()!!.trim().toUpperCase()
+        } while (answer != "Y" && answer != "N")
+        if (answer == "Y") {
+            Users.remove(user)
+            println("Utilizador removido com sucesso")
+        }
+    }
+
+    private fun showInUsers() {
+        val dayOfTheWeek = dateTime.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.UK)
+        val listOfUsersInside = Users.usersInside()
+
+        for (user in listOfUsersInside) {
+            val entryTime = format(user.entryTime)
+            println("${user.UIN} - ${user.name} $dayOfTheWeek. $entryTime")
+        }
+
+    }
+
+    private fun shutdown() {
+        Users.writeUsers()
+        Logs.writeLogs()
+        exitProcess(0)
+    }
+
+    private fun getComands(): Map<String, () -> Unit> {
+        val add = Pair("ADD") { add() }
+        val remove = Pair("REMOVE") { remove() }
+        val inUsers = Pair("INSIDE") { showInUsers() }
+        val shutdown = Pair("OFF") { shutdown() }
+        val help = Pair("HELP") { printHelp() }
+        return hashMapOf(add, remove, inUsers, shutdown, help)
+    }
+
+    private fun printLine() {
+        println("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=")
+    }
+
+    private fun printHelp() {
+        printLine()
+        println("ADD     : Adicionar utilizador\n")
+        println("REMOVE  : Remover utilizador\n")
+        println("INSIDE  : Mostra uma lista com os utilizadores dentro do estabelecimento\n")
+        println("OFF     : Desliga o sistema")
+        printLine()
+    }
+
+    private fun enterMaintenace() {
+        printLine()
+        println("           Manutenção")
+        printLine()
+        print("Comandos:")
+        manutCommands.keys.forEach { command ->
+            print(" $command ")
+        }
+        println()
+        var command: String?
+        while (true) {
+            print("Maintenance$")
+            command = readLine()?.trim()?.toUpperCase()
+            if (!M.checkMaintenance()) return
+            manutCommands[command]?.invoke() ?: println("Comando inexistente")
+        }
+    }
 }
 
 fun main() {
     App.run()
-    exitProcess(0)
 }

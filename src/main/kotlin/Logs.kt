@@ -25,6 +25,10 @@ object Logs {
         FileAcess.writeLogs(logs)
     }
 
+    fun loadLogs(logs: List<String>){
+        logs.forEach(::load)
+    }
+
     private fun load(logsText: String) {
         val logArray = logsText.split(';')
         val logRegistDate = logArray[0].split(":")
@@ -35,9 +39,5 @@ object Logs {
         val logUIN = logArray[2].toInt()
         val logNAME = logArray[3]
         addLog(ms, loginNout == "[>]", logUIN, logNAME)
-    }
-
-    fun loadLogs(logs: List<String>){
-        logs.forEach(::load)
     }
 }

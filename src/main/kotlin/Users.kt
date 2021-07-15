@@ -2,15 +2,15 @@ import java.util.*
 
 object Users {
     private val uinsRemovedQueue = PriorityQueue<Int>()
-
+    const val MAX_CAPACITY = 1000
     data class User(val UIN: Int, val PIN: Int, val name: String, val accumulatedTime: Long, val entryTime: Long)
 
     // UIN;PIN;NOME;ACCUMULATED;ENTRY
     private fun User.toText(): String { // 003;1458;Carlos;0;0
         return "$UIN;$PIN;$name;$accumulatedTime;$entryTime"
     }
-//---------------------------------------------------------------------------------------------
-    // COLLECTION Methods
+
+// ------------------------ Map Methods ----------------------------------------
     private val usersMap = HashMap<Int, User>()
 
     operator fun get(uin: Int): User? {
@@ -19,13 +19,12 @@ object Users {
 
 
     fun add(name: String, PIN: Int): User? {
-        if (usersMap.size >= 1000) return null
-        val uin = when {
-            uinsRemovedQueue.isNotEmpty() -> uinsRemovedQueue.poll()
-            else -> usersMap.size
-        }
+        if (usersMap.size >= MAX_CAPACITY) return null
+        val uin = if (uinsRemovedQueue.isNotEmpty()) uinsRemovedQueue.poll()
+                else usersMap.size
+
         val newUser = User(UIN = uin, PIN = PIN, name, 0L, 0L)
-        usersMap[uin] = User(UIN = uin, PIN = PIN, name, 0L, 0L)
+        usersMap[uin] = newUser
         return newUser
     }
 
@@ -67,16 +66,16 @@ object Users {
     }
 
     fun writeUsers() {
-        FileAcess.writeUsers(this.usersToList(), queueToList())
+        FileAcess.writeUsers(usersToList(), queueToList())
     }
 
     private fun queueToList(): List<String> {
-        val queue = LinkedList<String>()
+        val removedList = LinkedList<String>()
         uinsRemovedQueue.forEach { elem ->
-            queue.add(elem.toString())
+            removedList.add(elem.toString())
         }
 
-        return queue
+        return removedList
     }
 
     private fun usersToList():List<String>{
@@ -86,6 +85,10 @@ object Users {
         }
 
         return users
+    }
+
+    fun usersInside():List<User>{
+        return usersMap.values.filter { it.entryTime != 0L }
     }
 
 }
